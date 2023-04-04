@@ -158,6 +158,10 @@ def search(request):
 @csrf_exempt
 def feeds(request):
     """文章页，有请求的话，更新文章页并返回，没有的话，从数据库拉取展示"""
+
+    # 用于模态窗口的作者选择(查询表author字段，列表形式返回，distinct()去重)
+    name_list = Article.objects.values_list('author', flat=True).distinct()
+
     if request.POST.get('upload'):
         print('解析源,拉取数据')
         # 读取 filter.json 文件并解析（过滤关键字）
@@ -167,13 +171,11 @@ def feeds(request):
         # 读取 RSS_data.json 文件并解析（RSS源）
         with open('feeds/static/RSS_data.json', 'r', encoding='utf-8') as f:
             rss_data = json.load(f)
-            feeds_url = rss_data.values()
 
         # 使用 feedparser 获取 RSS 订阅源中的文章
         articles = []
-        # feeds_url = ['https://www.fy6b.com/feed']
-        for feed in feeds_url:
-            feed_data = feedparser.parse(feed)
+        for name, url in rss_data.items():
+            feed_data = feedparser.parse(url)
             for entry_data in feed_data.entries:
 
                 # 只检查标题是否匹配过滤器中的关键字，如果匹配则跳过此文章
@@ -194,6 +196,7 @@ def feeds(request):
                         title=entry_data.title,
                         link=entry_data.link,
                         summary=entry_data.summary,
+                        author=name,
                         pub_date=time.strftime(
                             "%Y-%m-%d", entry_data.published_parsed)
                     )
@@ -201,12 +204,12 @@ def feeds(request):
                     # 检测是否阅读过，没阅读才展示
                     articles.append(article)
 
-        return render(request, 'feeds.html', {'articles': articles})
+        return render(request, 'feeds.html', {'articles': articles, "name_list": name_list})
     else:
         print('数据库读取')
         # 从数据库中返回数据
         articles = Article.objects.filter(read_state=False)
-        return render(request, 'feeds.html', {'articles': articles})
+        return render(request, 'feeds.html', {'articles': articles, "name_list": name_list})
 
 
 def filter(request):
