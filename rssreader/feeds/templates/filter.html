@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<title>RSS Filter</title>
+<style>
+    /* 设置按钮组位置 */
+    .button-group-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .delete-button {
+        display: inline-block;
+        position: absolute;
+        right: 2px;
+        bottom: 1px;
+        box-sizing: border-box;
+        height: 37px;
+    }
+
+    li.list-group-item {
+        position: relative;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+<!-- Button group -->
+<div class="button-group-container">
+    <div class="btn-group float-end" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
+            data-bs-target="#add-keyword-modal">Add</button>
+        <button type="submit" name="action" value="delete" class="btn btn-outline-danger">Delete</button>
+    </div>
+</div>
+
+
+<div class="d-flex justify-content-center py-4">
+    <div class="card w-75">
+        <a class="list-group-item" data-bs-toggle="collapse" href="#title_group" role="button">
+            标题
+        </a>
+
+        <div class="collapse" id="title_group">
+            <div class="card card-body">
+                <ul class="list-group">
+                    {% for title_kw in data.filter_title %}
+                    <li class="list-group-item">{{ title_kw }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <a class="list-group-item" data-bs-toggle="collapse" href="#summary_group" role="button">
+            描述
+        </a>
+
+        <div class="collapse" id="summary_group">
+            <div class="card card-body">
+                <ul class="list-group">
+                    {% for summary_kw in data.filter_summary %}
+                    <li class="list-group-item">{{ summary_kw }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal for adding new RSS feed -->
+<div class="modal fade" id="add-keyword-modal" tabindex="-1" aria-labelledby="add-feed-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="add-feed-modal-label">Add New KeyWord</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="add-feed-form">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <label for="KeyWord" class="col-sm-2 col-form-label">关键字</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="KeyWord" name="KeyWord">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="type" class="col-sm-2 col-form-label">Type</label>
+                        <div class="col-sm-10">
+                            <div>
+                                <input type="checkbox" name="type" value="filter_title" id="type-title">
+                                <label for="type-title" class="form-check-label">标题</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" name="type" value="filter_summary" id="type-summary">
+                                <label for="type-summary" class="form-check-label">描述</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="add-button">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $("#add-button").click(function () {
+            var types = $('input[name="type"]:checked');
+            if (types.length === 0) {
+                alert('请至少选择一个类型');
+                return;
+            }
+            $.ajax({
+                url: "/feeds/filter-add/",
+                type: "POST",
+                data: $("#add-feed-form").serialize(),
+                success: function () {
+                    window.location.reload();
+                }
+            });
+        });
+    });
+
+
+    // 删除按钮功能
+    $("button[name='action'][value='delete']").click(function () {
+        // 找到所有 li.list-group-item 元素
+        var listItems = $("li.list-group-item");
+
+        // 如果按钮已经处于 active 状态，则移除该状态并删除所有删除按钮
+        if ($(this).hasClass("active")) {
+            $(this).removeClass("active");
+            $(".btn-secondary.delete-button").remove();
+        } else {
+            // 否则，为按钮添加 active 类，然后为每个列表项添加删除按钮
+            $(this).addClass("active");
+            console.log(listItems)
+            $.each(listItems, function (index, listItem) {
+                // 在每个元素的内部添加删除按钮
+                var deleteButton = $("<button/>")
+                    .addClass("btn btn-secondary delete-button")
+                    .html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>')
+                    .click(function () {
+                        // 当删除按钮被点击时执行
+                        var KeyWord = $(listItem).contents().filter(function () {
+                            return this.nodeType === Node.TEXT_NODE;
+                        }).text().trim();
+
+
+                        // 发送 AJAX 请求删除对应的源
+                        $.ajax({
+                            url: "/feeds/filter-delete/",
+                            method: "POST",
+                            data: {
+                                "name": KeyWord
+                            },
+                            success: function (response) {
+                                // 当 AJAX 请求成功时执行
+                                if (response.success) {
+                                    // 从页面上删除对应的 li.list-group-item 元素
+                                    $(listItem).remove();
+                                } else {
+                                    // 显示错误信息
+                                    alert(response.message);
+                                }
+                            },
+                            error: function () {
+                                // 当 AJAX 请求出错时执行
+                                alert("An error occurred while deleting the feed.");
+                            }
+                        });
+                    });
+
+                // 将删除按钮添加到列表项内部
+                $(listItem).append(deleteButton);
+            });
+        }
+    });
+</script>
+
+{% endblock %}

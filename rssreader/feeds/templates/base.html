@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <base href="http://127.0.0.1:8000/">
+    <title>{% block title %}RSS Reader{% endblock %}</title>
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    <header>
+        <nav class="navbar bg-dark">
+            <ul class="nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="feeds/">首页</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="feeds/manager">管理</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="feeds/filter">过滤</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled">Disabled</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <!-- <footer>
+        <div style="text-align: center;">&copy; 2023 RSS Reader</div>
+    </footer> -->
+    {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>

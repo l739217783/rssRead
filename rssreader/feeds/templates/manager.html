@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<title>RSS Feed Check</title>
+<style>
+    .button-group-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .card {
+        margin: 0 auto;
+    }
+
+    /* li.list-group-item {
+        display: inline-block;
+    } */
+
+    /* 使check feeds按钮的边角样式变回原样 */
+    form.btn-group-form button {
+        border-radius: 0;
+    }
+
+
+    .delete-button {
+        position: absolute;
+        right: -46px;
+        bottom: 1px;
+        height: 40px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+<!-- Button group -->
+<div class="button-group-container">
+    <div class="btn-group float-end" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
+            data-bs-target="#add-feed-modal">Add</button>
+        <button type="submit" name="action" value="delete" class="btn btn-outline-danger">Delete</button>
+        <form method="POST" class="btn-group-form">
+            {% csrf_token %}
+            <input type="hidden" name="check" value="True">
+            <button type="submit" name="action" value="check" class="btn btn-outline-primary">Check Feeds</button>
+        </form>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center py-4">
+    {% if feeds %}
+    <div class="card w-75">
+        <ul class="list-group list-group-flush">
+            {% for feed in feeds %}
+            <div class="position-relative">
+                {% if check %}
+                {% if feed.status == 'green' %}
+
+                <li class="list-group-item">{{ feed.name }}<span style="color:green;" class="float-end">OK</span>
+                </li>
+
+                {% elif feed.status == 'yellow' %}
+
+                <li class="list-group-item">{{ feed.name }}<span style="color:orange;" class="float-end">Slow</span>
+
+                </li>
+                {% else %}
+
+                <li class="list-group-item">{{ feed.name }}<span style="color:red;" class="float-end">Failed</span>
+                </li>
+
+                {% endif %}
+                {% else %}
+
+                <li class="list-group-item">{{ feed }}</li>
+
+                {% endif %}
+            </div>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+
+
+
+
+
+<!-- Modal for adding new RSS feed -->
+<div class="modal fade" id="add-feed-modal" tabindex="-1" aria-labelledby="add-feed-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="add-feed-modal-label">Add New Feed</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="add-feed-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="url" class="form-label">URL</label>
+                        <input type="text" class="form-control" id="url" name="url">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="add-feed-button">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script>
+    $(document).ready(function () {
+        $("#add-feed-btn").click(function () {
+            $("#add-feed-modal").modal("show");
+        });
+
+        $("#add-feed-button").click(function () {
+            $.ajax({
+                url: "/feeds/add-feed/",
+                type: "POST",
+                data: $("#add-feed-form").serialize(),
+                success: function () {
+                    window.location.reload();
+                }
+            });
+        });
+    });
+
+
+
+    $("button[name='action'][value='delete']").click(function () {
+        // 找到所有 li.list-group-item 元素
+        var listItems = $(".list-group-item");
+
+        // 如果按钮已经处于 active 状态，则移除该状态并删除所有删除按钮
+        if ($(this).hasClass("active")) {
+            $(this).removeClass("active");
+            $(".btn-secondary.delete-button").remove();
+        } else {
+            // 否则，为按钮添加 active 类，然后为每个列表项添加删除按钮
+            $(this).addClass("active");
+            console.log(listItems)
+            $.each(listItems, function (index, listItem) {
+                // 在每个元素的内部添加删除按钮
+                var deleteButton = $("<button/>")
+                    .addClass("btn btn-secondary delete-button")
+                    .html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>')
+                    .click(function () {
+                        // 当删除按钮被点击时执行
+                        var feedName = $(listItem).contents().filter(function () {
+                            return this.nodeType === Node.TEXT_NODE;
+                        }).text().trim();
+
+
+                        // 发送 AJAX 请求删除对应的源
+                        $.ajax({
+                            url: "{% url 'feeds:delete-feed' %}",
+                            method: "POST",
+                            data: {
+                                "name": feedName
+                            },
+                            success: function (response) {
+                                // 当 AJAX 请求成功时执行
+                                if (response.success) {
+                                    // 从页面上删除对应的 li.list-group-item 元素
+                                    $(listItem).remove();
+                                } else {
+                                    // 显示错误信息
+                                    alert(response.message);
+                                }
+                            },
+                            error: function () {
+                                // 当 AJAX 请求出错时执行
+                                alert("An error occurred while deleting the feed.");
+                            }
+                        });
+                    });
+
+                // 将删除按钮添加到列表项内部
+                $(listItem).after(deleteButton);
+            });
+        }
+    });
+
+
+
+</script>
+{% endblock %}
