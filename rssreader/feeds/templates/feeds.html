@@ -1,18 +1,8 @@
 {% extends 'base.html' %}
-{% load static %}
 
+{% block title %}Rss Read{% endblock %}
 
-{% block extra_head %}
-<!-- Required meta tags -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- Bootstrap CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% block head %}
 <style>
   /* 覆盖card-link 类的样式，否则整体变蓝色+下划线 */
   .card-link {
@@ -26,10 +16,13 @@
   }
 
 
+  /* 卡片组四周增加点边距 */
+  main {
+    margin: 0px 20px;
+  }
 
-  /* 卡片组底部增加点边距 */
   div.container-fluid {
-    margin-bottom: 20px;
+    margin: 20px 0px;
   }
 
   /* 阅读后样式 */
@@ -38,15 +31,17 @@
     opacity: 0.8;
   }
 
-
+  /* 卡片大小 */
   .card {
     height: 180px;
+  }
+
+  /* 卡片内容溢出问题 */
+  .card-text {
+    height: 83px;
     overflow: hidden;
   }
 
-  #card_group {
-    margin-top: 20px;
-  }
 
   .nav-link {
     width: 100%;
@@ -74,6 +69,7 @@
     /* 设置下拉长度与按钮一致 */
     width: 383px;
   }
+
 
   /* 载入rss源数据动画 */
   .loading {
@@ -119,15 +115,12 @@
     }
   }
 </style>
-
-
 {% endblock %}
-
 
 {% block content %}
 
 
-<!-- Button group -->
+<!-- 按钮组 -->
 <div class="button-group-container">
   <div class="btn-group float-end" role="group" aria-label="Basic example">
     <button type="button" class="btn btn-outline-secondary" id="filter" data-bs-toggle="modal"
@@ -144,27 +137,18 @@
             d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z" />
         </svg>
       </button>
-      <!-- <button type="button" class="btn btn-outline-secondary" id="archive">
+      <button type="button" class="btn btn-outline-secondary" id="archive">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-archive"
           viewBox="0 0 16 16">
           <path
             d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1V2zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5H2zm13-3H1v2h14V2zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z" />
         </svg>
-      </button> -->
-      <button type="button" class="btn btn-outline-secondary" id="all_read">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-all"
-          viewBox="0 0 16 16">
-          <path
-            d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z" />
-          <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708z" />
-        </svg>
-        <span>全部已读</span>
       </button>
   </div>
 </div>
 
-<!-- 加载动画 -->
 
+<!-- 下载等待加载动画 -->
 <div id="loading" class="loading">
   <div class="loading-dot"></div>
   <div class="loading-dot"></div>
@@ -173,9 +157,10 @@
 
 
 
-<!-- Modal for adding new RSS feed -->
+<!-- 搜索模态窗 -->
 <div class="modal fade" id="add-filter-modal" tabindex="-1" aria-labelledby="add-feed-modal-label" aria-hidden="true">
-  <div class="modal-dialog">
+  <!-- modal-dialog modal-dialog-centered 居中样式 -->
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Search Form</h5>
@@ -183,6 +168,7 @@
       </div>
       <div class="modal-body">
         <form id="search-form">
+          {% csrf_token %}
           <div class="mb-3">
             <label for="keyword" class="col-form-label">Keyword:</label>
             <input type="text" class="form-control" id="keyword-input">
@@ -212,32 +198,30 @@
 </div>
 
 
-
+<!-- 卡片内容 -->
 <div class="container-fluid">
-  <div id='content' class="col-md-12">
-    <!-- 主内容 -->
-    <div id='card_group' class="row row-cols-4 gx-4 gy-4">
-      {% for article in articles %}
-      {% if not article.read_state %}
-      <div class="col">
-        <div class="card" data-article-id="{{ article.pk }}">
-          <a href="{{ article.link }}" class="card-link" target="_blank">
-            <div class="card-body">
-              <h5 class="card-title text-truncate">{{ article.title }}</h5>
-              <p class="card-text d">{{ article.summary|truncatechars:65 }}</p>
-            </div>
-            <div class="card-footer position-absolute bottom-0 start-0 end-0 text-end text-muted small">
-              <!-- {{article.pub_date | date:"Y-m-d" }} -->
-              {{ article.pub_date }}
-            </div>
-          </a>
-        </div>
+  <div id='content' class="row">
+
+    {% for article in articles %}
+    {% if not article.read_state %}
+
+    <div id='card_group' class="col-sm-6 col-lg-3 mb-4">
+      <div class="card h-100" data-article-id="{{ article.pk }}">
+        <a href="{{ article.link }}" class="card-link" target="_blank">
+          <div class="card-body">
+            <h5 class="card-title text-truncate">{{ article.title }}</h5>
+            <p class="card-text">{{ article.summary|truncatechars:65 }}</p>
+          </div>
+          <div class="card-footer position-absolute bottom-0 start-0 end-0 text-end text-muted small">
+            {{ article.pub_date }}
+          </div>
+        </a>
       </div>
-      {% endif %}
-      {% endfor %}
     </div>
+    {% endif %}
+    {% endfor %}
+
   </div>
-</div>
 </div>
 
 
@@ -245,7 +229,8 @@
 <script>
   $(document).ready(function () {
     // 当用户点击 dropdown item 时，将 item 的值写入 input 的 value 中
-    $('.dropdown-item').click(function () {
+    $('.dropdown-item').click(function (event) {
+      event.preventDefault(); // 阻止表单的自动提交
       var value = $(this).data('value');
       $('#author-input').val(value);
       $(this).closest('.input-group').find('.dropdown-toggle').text($(this).text());
@@ -307,7 +292,7 @@
     });
 
     // 全部已读按钮的点击事件
-    $("#all_read").click(function () {
+    $("#archive").click(function () {
       $(".card-link").each(function () {
         var article_id = $(this).closest(".card").data("article-id");
         markCardAsRead(article_id);

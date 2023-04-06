@@ -6,12 +6,8 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 import urllib.request
-from django.http import HttpResponseRedirect
 
 from .models import Article
-import os
-from django.views.decorators.http import require_POST
-from django.urls import reverse
 
 
 @csrf_exempt
@@ -21,7 +17,7 @@ def mark_as_read(request, article_id):
         article.read_state = True
         article.save()
         return JsonResponse({'status': 'ok'})
-    except:
+    except:  # noqa:E722
         return JsonResponse(
             {'error': 'An error occurred while marking the article as read'})
 
@@ -82,7 +78,7 @@ def manager(request):
                     results.append({'name': name, 'status': 'yellow'})
                 else:
                     results.append({'name': name, 'status': 'red'})
-            except:
+            except:  # noqa:E722
                 results.append({'name': name, 'status': 'red'})
         return render(request, 'manager.html', {
             'feeds': results,
@@ -123,38 +119,6 @@ def search(request):
         return JsonResponse(result, safe=False)
 
 
-# 过滤正常搜索版本，目前在用的是正则版
-# def feeds(request):
-#     with open('filter_data.json', 'r', encoding='utf-8') as f:
-#         filter_data = json.load(f)
-
-#     articles = []
-#     feeds_url = ['https://www.fy6b.com/feed']
-#     # feeds_url = ['https://example.com/feed', 'https://example.org/feed']
-#     for feed in feeds_url:
-#         feed_data = feedparser.parse(feed)
-#         for entry_data in feed_data.entries:
-#             title = entry_data.title.lower()
-#             summary = entry_data.summary.lower()
-#             if any(filter_word in title for filter_word in filter_data['filter_title']) or \
-#                     any(filter_word in summary for filter_word in filter_data['filter_summary']):
-#                 continue
-#             try:
-#                 article = Article.objects.get(title=entry_data.title,
-#                                               link=entry_data.link)
-#             except Article.DoesNotExist:
-#                 article = Article.objects.create(
-#                     title=entry_data.title,
-#                     link=entry_data.link,
-#                     summary=entry_data.summary,
-#                     pub_date=time.strftime(
-#                         "%Y-%m-%d", entry_data.published_parsed)
-#                     # pub_date=entry_data.published
-#                 )
-#             if not article.read_state:
-#                 articles.append(article)
-#     return render(request, 'feeds.html', {'articles': articles})
-
 @csrf_exempt
 def feeds(request):
     """文章页，有请求的话，更新文章页并返回，没有的话，从数据库拉取展示"""
@@ -179,11 +143,12 @@ def feeds(request):
             for entry_data in feed_data.entries:
 
                 # 只检查标题是否匹配过滤器中的关键字，如果匹配则跳过此文章
-                # if any(re.search(keyword, entry_data.title, re.IGNORECASE) for keyword in filter_data['filter_title']):
+
+                # if any(re.search(keyword, entry_data.title, re.IGNORECASE) for keyword in filter_data['filter_title']): # noqa:E501
                 #     continue
 
                 # 检查标题和描述是否匹配过滤器中的关键字，如果匹配则跳过此文章
-                if any(re.search(keyword, entry_data.title, re.IGNORECASE) or re.search(keyword, entry_data.summary, re.IGNORECASE) for keyword in filter_data['filter_title'] + filter_data['filter_summary']):
+                if any(re.search(keyword, entry_data.title, re.IGNORECASE) or re.search(keyword, entry_data.summary, re.IGNORECASE) for keyword in filter_data['filter_title'] + filter_data['filter_summary']):  # noqa:E501
                     print(f'过滤：{entry_data.title}')
                     continue
 
