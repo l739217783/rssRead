@@ -38,39 +38,39 @@
     </div>
 </div>
 
-
+<!-- 过滤词列表组 -->
 <div class="d-flex justify-content-center py-4">
-    <div class="card w-75">
-        <a class="list-group-item" data-bs-toggle="collapse" href="#title_group" role="button">
-            标题
-        </a>
+    <div class="w-75">
+        <div class="list-group" id="accordionExample">
+            <a class="list-group-item list-group-item-action" data-bs-toggle="collapse" href="#collapseOne"
+                aria-expanded="false" aria-controls="collapseOne">
+                标题
+            </a>
 
-        <div class="collapse" id="title_group">
-            <div class="card card-body">
-                <ul class="list-group">
+            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="list-group">
                     {% for title_kw in data.filter_title %}
                     <li class="list-group-item">{{ title_kw }}</li>
                     {% endfor %}
-                </ul>
+                </div>
             </div>
-        </div>
 
-        <a class="list-group-item" data-bs-toggle="collapse" href="#summary_group" role="button">
-            描述
-        </a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="collapse" href="#collapseTwo"
+                aria-expanded="false" aria-controls="collapseTwo">
+                描述
+            </a>
 
-        <div class="collapse" id="summary_group">
-            <div class="card card-body">
-                <ul class="list-group">
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                <div class="list-group">
                     {% for summary_kw in data.filter_summary %}
                     <li class="list-group-item">{{ summary_kw }}</li>
                     {% endfor %}
-                </ul>
+                </div>
             </div>
         </div>
-
     </div>
 </div>
+
 
 <!-- Modal for adding new RSS feed -->
 <div class="modal fade" id="add-keyword-modal" tabindex="-1" aria-labelledby="add-feed-modal-label" aria-hidden="true">
@@ -116,6 +116,19 @@
 
 
 <script>
+    // 列表聚焦效果
+    const accordionItems = document.querySelectorAll('.list-group-item');
+    accordionItems.forEach(item => {
+        item.addEventListener('click', () => {
+            accordionItems.forEach(i => {
+                if (i !== item) {
+                    i.classList.remove('active');
+                }
+            });
+            item.classList.toggle('active');
+        });
+    });
+
 
     $(document).ready(function () {
 

@@ -1,48 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Rss Read{% endblock %}
 
 {% block head %}
 <style>
-  /* 覆盖card-link 类的样式，否则整体变蓝色+下划线 */
-  .card-link {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .card-link:hover {
-    color: inherit;
-    text-decoration: none;
-  }
-
-
-  /* 卡片组四周增加点边距 */
-  main {
-    margin: 0px 20px;
-  }
-
-  div.container-fluid {
-    margin: 20px 0px;
-  }
-
-  /* 阅读后样式 */
-  .card-gray {
-    background-color: #f5f5f5;
-    opacity: 0.8;
-  }
-
-  /* 卡片大小 */
-  .card {
-    height: 180px;
-  }
-
-  /* 卡片内容溢出问题 */
-  .card-text {
-    height: 83px;
-    overflow: hidden;
-  }
-
-
   .nav-link {
     width: 100%;
     text-align: left;
@@ -69,56 +31,12 @@
     /* 设置下拉长度与按钮一致 */
     width: 383px;
   }
-
-
-  /* 载入rss源数据动画 */
-  .loading {
-    display: none;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    z-index: 9999;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.7);
-  }
-
-  .loading-dot {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    margin: 0 8px;
-    border-radius: 50%;
-    background-color: #333;
-    animation: loading 1.5s ease-in-out infinite;
-  }
-
-  .loading-dot:nth-child(2) {
-    animation-delay: 0.25s;
-  }
-
-  .loading-dot:nth-child(3) {
-    animation-delay: 0.5s;
-  }
-
-  @keyframes loading {
-
-    0%,
-    100% {
-      transform: scale(0);
-    }
-
-    50% {
-      transform: scale(1);
-    }
-  }
 </style>
+<link rel="stylesheet" type="text/css" href="{% static 'loading.css'%}">
+<link rel="stylesheet" type="text/css" href="{% static 'card.css'%}">
 {% endblock %}
 
 {% block content %}
-
 
 <!-- 按钮组 -->
 <div class="button-group-container">
@@ -148,12 +66,6 @@
 </div>
 
 
-<!-- 下载等待加载动画 -->
-<div id="loading" class="loading">
-  <div class="loading-dot"></div>
-  <div class="loading-dot"></div>
-  <div class="loading-dot"></div>
-</div>
 
 
 
@@ -197,169 +109,46 @@
   </div>
 </div>
 
+<!-- 懒加载计算数量使用 -->
+<div id="total-articles" data-total-articles="{{ articles|length }}" style="display: none;"></div>
 
-<div class="container-fluid">
-  <div id='content' class="col-md-12">
-    <!-- 主内容 -->
-    <div id='card_group' class="row row-cols-4 gx-4 gy-4">
-      {% for article in articles %}
-      {% if not article.read_state %}
-      <div class="col">
-        <div class="card" data-article-id="{{ article.pk }}">
-          <a href="{{ article.link }}" class="card-link" target="_blank">
-            <div class="card-body">
-              <h5 class="card-title text-truncate">{{ article.title }}</h5>
-              <p class="card-text d">{{ article.summary|truncatechars:65 }}</p>
-            </div>
-            <div class="card-footer position-absolute bottom-0 start-0 end-0 text-end text-muted small">
-              <!-- {{article.pub_date | date:"Y-m-d" }} -->
-              {{ article.pub_date }}
-            </div>
-          </a>
+
+<!-- 内容卡片组 -->
+<div id="cardGroup" class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+  {% for article in articles|slice:":16" %}
+  {% if not article.read_state %}
+  <div class="col col-sm-6 col-lg-3 mb-4">
+    <div class="card" data-article-id="{{ article.pk }}">
+      <a href="{{ article.link }}" class="card-link" target="_blank">
+        <div class="card-body">
+          <h5 class="card-title text-truncate">{{ article.title }}</h5>
+          <p class="card-text d">{{ article.summary|truncatechars:65 }}</p>
         </div>
-      </div>
-      {% endif %}
-      {% endfor %}
+        <div class="card-footer position-absolute bottom-0 start-0 end-0 text-end text-muted small">
+          {{ article.pub_date }}
+        </div>
+      </a>
     </div>
   </div>
-</div>
+  {% endif %}
+  {% endfor %}
 </div>
 
+<div class="loading">
+  <!-- 加载动画 -->
+  <div class="loading-dot"></div>
+  <div class="loading-dot"></div>
+  <div class="loading-dot"></div>
+</div>
 
 
 <script>
-  $(document).ready(function () {
-    // 当用户点击 dropdown item 时，将 item 的值写入 input 的 value 中
-    $('.dropdown-item').click(function (event) {
-      event.preventDefault(); // 阻止表单的自动提交
-      var value = $(this).data('value');
-      $('#author-input').val(value);
-      $(this).closest('.input-group').find('.dropdown-toggle').text($(this).text());
-    });
-  });
-
-  // 同步按钮点击事件
-  $("#sync").click(function () {
-    // 显示loading
-    $('<div class="loading"></div>').appendTo('body');
-    $('.loading').css('display', 'flex');
-    $(".loading").show();
-
-    // 发送请求
-    $.ajax({
-      url: "/feeds/",
-      type: "POST",
-      data: { upload: "true" },
-      success: function (data) {
-        // 隐藏loading
-        $(".loading").hide();
-
-        // 刷新页面
-        window.location.reload();
-      },
-      error: function (xhr, status, error) {
-        console.log("An error occurred while syncing feeds");
-      },
-    });
-  });
-  // 将单个卡片的点击事件封装成函数
-  function markCardAsRead(article_id) {
-    var url = "/feeds/mark-as-read/" + article_id + "/";
-    $.ajax({
-      url: url,
-      type: "POST",
-      dataType: "json",
-      data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
-      success: function (data) {
-        console.log("Article " + article_id + " marked as read");
-      },
-      error: function (xhr, status, error) {
-        console.log("An error occurred while marking the article as read");
-      },
-    });
-  }
-
-  function card_addCickEvent() {
-    // 为所有卡片增加点击事件，左键点击和中键点击的时候，卡片变灰色
-    const cards = document.querySelectorAll('.card-link');
-    cards.forEach(card => {
-      card.addEventListener('mousedown', function (event) {
-        if (event.which === 1 || event.which === 2) {
-          this.closest('.card').classList.add('card-gray');
-          const article_id = this.closest('.card').dataset.articleId;
-          markCardAsRead(article_id);
-        }
-      });
-    });
-
-    // 全部已读按钮的点击事件
-    $("#archive").click(function () {
-      $(".card-link").each(function () {
-        var article_id = $(this).closest(".card").data("article-id");
-        markCardAsRead(article_id);
-        // $(this).closest(".card").remove();
-        this.closest('.card').classList.add('card-gray');
-
-      });
-      // setTimeout(() => {
-      //   window.location.reload();
-      // }, 2000);
-    });
-
-  }
-
-  $(document).ready(function () {
-    card_addCickEvent() // 所有卡片增加点击事件+按钮添加点击事件
-  });
-
-  // 筛选器
-  $(document).ready(function () {
-    $("#search-btn").click(function () {
-      var keyword = $("#keyword-input").val();
-      var author = $("#author-input").val();
-      $.ajax({
-        url: "feeds/search/",
-        type: "POST",
-        data: { keyword: keyword, author: author },
-        dataType: "json",
-        success: function (data) {
-          // 这里的data是从服务器端返回的响应数据，可以通过该对象来获取响应数据
-          // 因为使用的是dataType: "json"，所以data会被解析成一个 JSON 对象。
-
-          $('#add-filter-modal').modal('hide'); // 关闭模态窗口
-          $('#card_group').empty(); // 清空已有卡片
-          // 循环遍历所有文章
-          for (var i = 0; i < data.length; i++) {
-            var article = data[i];
-
-            // 生成HTML代码
-            var cardHtml = '<div class="col">' +
-              '<div class="card" data-article-id="' + article.id + '">' +
-              '<a href="' + article.link + '" class="card-link" target="_blank">' +
-              '<div class="card-body">' +
-              '<h5 class="card-title text-truncate">' + article.title + '</h5>' +
-              '<p class="card-text">' + article.summary + '</p>' +
-              '</div>' +
-              '<div class="card-footer position-absolute bottom-0 start-0 end-0 text-end text-muted small">' +
-              article.pub_date +
-              '</div>' +
-              '</a>' +
-              '</div>' +
-              '</div>';
-
-            // 添加到页面
-            $('#card_group').append(cardHtml);
-
-            // 为新生成的所有卡片，绑定点击事件
-            card_addCickEvent();
-          }
-        },
-        error: function (xhr, status, error) {
-          console.log("An error occurred while searching");
-        }
-      });
-    });
-  });
+  var isSearching = false;
 </script>
+<script src="{% static 'addReadStatus.js'%}"></script>
+<script src="{% static 'addDownEvent.js'%}"></script>
+<script src="{% static 'lazyLoad_article.js'%}"></script>
+<script src="{% static 'searchResult.js'%}"></script>
+
 
 {% endblock %}

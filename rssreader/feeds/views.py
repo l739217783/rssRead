@@ -123,6 +123,8 @@ def search(request):
 def feeds(request):
     """文章页，有请求的话，更新文章页并返回，没有的话，从数据库拉取展示"""
 
+    html_tag_pattern = re.compile(r'<[^>]+>')  # 匹配HTML元素的正则
+
     # 用于模态窗口的作者选择(查询表author字段，列表形式返回，distinct()去重)
     name_list = Article.objects.values_list('author', flat=True).distinct()
 
@@ -157,10 +159,13 @@ def feeds(request):
                     article = Article.objects.get(title=entry_data.title,
                                                   link=entry_data.link)
                 except Article.DoesNotExist:
+                    # 去除HTML标签
+                    summary = html_tag_pattern.sub('', entry_data.summary)
+
                     article = Article.objects.create(
                         title=entry_data.title,
                         link=entry_data.link,
-                        summary=entry_data.summary,
+                        summary=summary,
                         author=name,
                         pub_date=time.strftime(
                             "%Y-%m-%d", entry_data.published_parsed)
@@ -174,6 +179,11 @@ def feeds(request):
         print('数据库读取')
         # 从数据库中返回数据
         articles = Article.objects.filter(read_state=False)
+
+        # 移除summary中可能存在的HTML标签
+        for article in articles:
+            article.summary = html_tag_pattern.sub('', article.summary)
+
         return render(request, 'feeds.html', {'articles': articles, "name_list": name_list})
 
 
@@ -260,3 +270,21 @@ def filter_add(request):
     #
     #     # 'summary': entry_data.summary if entry_data.summary != entry_data.title else ''
     #     return render(request, 'feeds.html', {'articles': articles})
+
+
+def api_articles(request):
+
+    html_tag_pattern = re.compile(r'<[^>]+>')  # 去除HTML标签的正则
+
+    start = int(request.GET.get('start', 0))
+    count = int(request.GET.get('count', 12))
+    articles = Article.objects.all()[start:start+count]
+    data = [{
+        'id': article.pk,
+        'title': article.title,
+        # 去除所有的HTML元素，防止影响卡片布局
+        'summary': html_tag_pattern.sub('', article.summary),
+        'link': article.link,
+        'pub_date': article.pub_date
+    } for article in articles]
+    return JsonResponse(data, safe=False, json_dumps_params={'ensure_ascii': False})
