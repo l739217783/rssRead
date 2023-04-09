@@ -3,6 +3,11 @@ $(document).ready(function () {
     $("#search-btn").click(function () {
         var keyword = $("#keyword-input").val();
         var author = $("#author-input").val();
+
+        // 清空 author 选项并强制清除下拉框的选中状态
+        $("#author-input").val("");
+        $(".dropdown-toggle").text("Select Author"); // 恢复按钮上的文本
+
         isSearching = true;
         $.ajax({
             url: "feeds/search/",
@@ -13,9 +18,16 @@ $(document).ready(function () {
                 // 这里的data是从服务器端返回的响应数据，可以通过该对象来获取响应数据
                 // 因为使用的是dataType: "json"，所以data会被解析成一个 JSON 对象。
 
+                // 重置模态窗口
+                $("#exampleModalLabel").text("Search Form"); // 将标题设置为默认值
+                $("#keyword-input").val(""); // 清空keyword输入框
                 $('#add-filter-modal').modal('hide'); // 关闭模态窗口
                 $('#cardGroup').empty(); // 清空已有卡片
 
+                if (data == 'load_HomePage') {
+                    //没有任何选项的话,重新加载首页
+                    window.location.assign('/feeds/');
+                }
                 // 循环遍历所有文章
                 for (var i = 0; i < data.length; i++) {
                     var article = data[i];
@@ -27,7 +39,7 @@ $(document).ready(function () {
                             <a href="${article.link}" class="card-link" target="_blank">
                                 <div class="card-body">
                                 <h5 class="card-title text-truncate">${article.title}</h5>
-                                <p class="card-text d">${article.summary.slice(0, 65)}</p>
+                                <p class="card-text d">${article.summary}</p>
                                 </div>
                                 <div class="card-footer position-absolute bottom-0 start-0 end-0 text-end text-muted small">
                                 ${article.pub_date}

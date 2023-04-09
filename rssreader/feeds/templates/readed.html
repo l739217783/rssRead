@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rss Read{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{% static 'loading.css'%}">
+<link rel="stylesheet" type="text/css" href="{% static 'card.css'%}">
+{% endblock %}
+{% block content %}
+
+
+
+<!-- 懒加载计算数量使用 -->
+<div id="total-articles" data-total-articles="{{ articles|length }}" style="display: none;"></div>
+
+
+<!-- 内容卡片组 -->
+<div id="cardGroup" class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+    {% for article in articles %}
+    {% if article.read_state %}
+    <div class="col col-sm-6 col-lg-3 mb-4">
+        <div class="card card-gray" data-article-id="{{ article.pk }}">
+            <a href="{{ article.link }}" class="card-link" target="_blank">
+                <div class="card-body">
+                    <h5 class="card-title text-truncate">{{ article.title }}</h5>
+                    <p class="card-text d">{{ article.summary|truncatechars:65 }}</p>
+                </div>
+                <div class="card-footer position-absolute bottom-0 start-0 end-0 text-end text-muted small">
+                    {{ article.pub_date }}
+                </div>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="loading">
+    <!-- 加载动画 -->
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+</div>
+
+
+
+<script src="{% static 'editCard_readstatus.js'%}"></script>
+
+{% endblock %}

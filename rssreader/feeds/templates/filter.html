@@ -20,8 +20,21 @@
         height: 37px;
     }
 
+
     li.list-group-item {
         position: relative;
+    }
+
+    .content {
+        display: flex;
+        justify-content: center;
+        margin: 10px 0px;
+    }
+
+    @media (max-width: 710px) {
+        .content {
+            margin-left: 30px;
+        }
     }
 </style>
 {% endblock %}
@@ -39,7 +52,7 @@
 </div>
 
 <!-- 过滤词列表组 -->
-<div class="d-flex justify-content-center py-4">
+<div class="content">
     <div class="w-75">
         <div class="list-group" id="accordionExample">
             <a class="list-group-item list-group-item-action" data-bs-toggle="collapse" href="#collapseOne"

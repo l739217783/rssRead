@@ -8,13 +8,20 @@ from django.views.decorators.csrf import csrf_exempt
 import urllib.request
 
 from .models import Article
+from django.db.models import Q
 
 
 @csrf_exempt
 def mark_as_read(request, article_id):
+    """修改数据库卡片阅读状态
+    article_id:卡片id
+    status:阅读状态
+    """
+    read_status = True if request.POST.get('status') == 'true' else False
+    print(request.POST.get('status'))
     try:
         article = Article.objects.get(id=article_id)
-        article.read_state = True
+        article.read_state = read_status
         article.save()
         return JsonResponse({'status': 'ok'})
     except:  # noqa:E722
@@ -97,26 +104,48 @@ def search(request):
     """从数据库筛选数据，将数据返回给feeds页面的筛选器js使用"""
     if request.method == 'POST':
         print(f'请求数据{request.POST}')
-        keyword = request.POST.getlist('keyword')
-        author = request.POST.getlist('author')
-        keyword = keyword[0] if keyword else ''
-        author = author[0] if author else ''
+        keyword = request.POST.get('keyword', '')
+        author = request.POST.get('author', '')
 
-        print(keyword, author)
-        articles = Article.objects.filter(
-            title__icontains=keyword, author=author)
+        # print(type(keyword), type(author))
+        # print(keyword, author)
+
+        if keyword.strip() == '' and author.strip() == '':
+            # 条件为空，重新加载首页
+            return JsonResponse('load_HomePage', safe=False)
+        elif keyword and author:
+            articles = Article.objects.filter(
+                Q(title__contains=keyword) | Q(summary__contains=keyword), author=author)
+        elif keyword:
+            articles = Article.objects.filter(
+                Q(title__contains=keyword) | Q(summary__contains=keyword))
+        else:
+            articles = Article.objects.filter(author=author)
+
         result = []
+        html_tag_pattern = re.compile(r'<[^>]+>')  # 去除HTML标签的正则
+
         for article in articles:
+            # 去除HTML标签,防止影响卡片布局
+            summary = html_tag_pattern.sub(
+                '', article.summary) if article.summary else ''
             result.append({
                 'id': article.id,
                 'title': article.title,
                 'author': article.author,
                 'link': article.link,
-                'summary': article.summary[:65]+'...',
+                'summary': summary,
                 'pub_date': article.pub_date,
             })
         print(result)
         return JsonResponse(result, safe=False)
+
+
+def readed(request):
+    """从数据库拉取展示已读文章页"""
+    articles = Article.objects.filter(read_state=True)
+    print(articles)
+    return render(request, 'readed.html', {'articles': articles})
 
 
 @csrf_exempt
@@ -273,6 +302,7 @@ def filter_add(request):
 
 
 def api_articles(request):
+    """获取文章列表(懒加载使用)"""
 
     html_tag_pattern = re.compile(r'<[^>]+>')  # 去除HTML标签的正则
 

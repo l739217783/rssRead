@@ -21,6 +21,7 @@ from .views import filter_add
 from .views import filter_delete
 from .views import search
 from .views import api_articles
+from .views import readed
 
 app_name = 'feeds'
 urlpatterns = [
@@ -34,5 +35,6 @@ urlpatterns = [
     path('filter/', filter, name='filter'),  # 过滤器
     path('filter-add/', filter_add, name='filter'),  # 过滤器
     path('filter-delete/', filter_delete, name='filter'),  # 过滤器
-    path('api/articles/', api_articles, name='api_articles'),
+    path('api/articles/', api_articles, name='api_articles'),  # 获取文章列表(懒加载使用)
+    path('readed/', readed, name='readed'),  # 已读文章
 ]

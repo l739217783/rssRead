@@ -1,6 +1,3 @@
-
-
-
 // 懒加载代码
 let loadedCount = document.querySelectorAll('.card').length;
 const cardGroup = document.getElementById('cardGroup');
@@ -13,12 +10,13 @@ function lazyLoad() {
     return;
   }
   if (isSearching) {
-    // 处在筛选器后的页面不搜索
+    // 处在筛选器后的页面不搜索,因为懒加载会将所有文章加载出来
     return;
   }
 
   // 显示加载动画
-  loading.style.display = 'flex';
+  // 有侧边栏不用，会引起侧边栏闪烁
+  // loading.style.display = 'flex';
 
   // 发送 Ajax 请求，获取更多文章数据
   const xhr = new XMLHttpRequest();
@@ -61,3 +59,4 @@ window.addEventListener('scroll', function () {
     lazyLoad();
   }
 });
+

@@ -1,0 +1,17 @@
+.navbar-vertical {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    background-color: #fff;
+    padding: 10px;
+    overflow-y: hidden;
+}
+
+ul.nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+
+}

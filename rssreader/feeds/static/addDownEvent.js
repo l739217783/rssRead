@@ -34,19 +34,3 @@ $("#sync").click(function () {
         },
     });
 });
-// 将单个卡片的点击事件封装成函数
-function markCardAsRead(article_id) {
-    var url = "/feeds/mark-as-read/" + article_id + "/";
-    $.ajax({
-        url: url,
-        type: "POST",
-        dataType: "json",
-        data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
-        success: function (data) {
-            console.log("Article " + article_id + " marked as read");
-        },
-        error: function (xhr, status, error) {
-            console.log("An error occurred while marking the article as read");
-        },
-    });
-}

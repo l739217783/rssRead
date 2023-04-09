@@ -10,16 +10,20 @@
         margin-top: 20px;
     }
 
-    .card {
-        margin: 0 auto;
+    .content {
+        display: flex;
+        justify-content: center;
+        margin: 10px 0px;
     }
+
+
 
     /* li.list-group-item {
         display: inline-block;
     } */
 
     /* 使check feeds按钮的边角样式变回原样 */
-    form.btn-group-form button {
+    .btn-outline-primary:not(:first-child) {
         border-radius: 0;
     }
 
@@ -29,6 +33,12 @@
         right: -46px;
         bottom: 1px;
         height: 40px;
+    }
+
+    @media (max-width: 710px) {
+        .content {
+            margin-left: 30px;
+        }
     }
 </style>
 {% endblock %}
@@ -45,12 +55,13 @@
         <form method="POST" class="btn-group-form">
             {% csrf_token %}
             <input type="hidden" name="check" value="True">
-            <button type="submit" name="action" value="check" class="btn btn-outline-primary">Check Feeds</button>
+            <button type="submit" name="action" value="check" class="btn btn-outline-primary rounded-end">Check
+                Feeds</button>
         </form>
     </div>
 </div>
 
-<div class="d-flex justify-content-center py-4">
+<div class="content">
     {% if feeds %}
     <div class="card w-75">
         <ul class="list-group list-group-flush">
