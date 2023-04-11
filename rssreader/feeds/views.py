@@ -1,3 +1,4 @@
+from requests.exceptions import RequestException
 import re
 import time
 import json
@@ -9,6 +10,7 @@ import urllib.request
 
 from .models import Article
 from django.db.models import Q
+import requests
 
 
 @csrf_exempt
@@ -56,6 +58,7 @@ def delete_feed(request):
     with open('feeds/static/RSS_data.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
 
+    # 删除json文件中的源
     if name in data:
         data.pop(name)
 
@@ -63,6 +66,10 @@ def delete_feed(request):
             json.dump(data, f, ensure_ascii=False, indent=4)
     else:
         print(f'源不存在:{name}')
+
+    # 删除数据库中的源
+    Article.objects.filter(author=name).delete()
+
     return JsonResponse({'success': True})
 
 
@@ -115,12 +122,12 @@ def search(request):
             return JsonResponse('load_HomePage', safe=False)
         elif keyword and author:
             articles = Article.objects.filter(
-                Q(title__contains=keyword) | Q(summary__contains=keyword), author=author)
+                Q(title__contains=keyword) | Q(summary__contains=keyword), author=author, read_state=False)
         elif keyword:
             articles = Article.objects.filter(
-                Q(title__contains=keyword) | Q(summary__contains=keyword))
+                Q(title__contains=keyword) | Q(summary__contains=keyword), read_state=False)
         else:
-            articles = Article.objects.filter(author=author)
+            articles = Article.objects.filter(author=author, read_state=False)
 
         result = []
         html_tag_pattern = re.compile(r'<[^>]+>')  # 去除HTML标签的正则
@@ -148,6 +155,23 @@ def readed(request):
     return render(request, 'readed.html', {'articles': articles})
 
 
+def get_content(url, retry_times=3):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) " "Chrome/74.0.3729.131 Safari/537.36"
+    }
+
+    for i in range(retry_times):
+        # 失败重复请求 3 次
+        try:
+            r = requests.get(url, headers=headers)
+            r.raise_for_status()
+            return r.text
+        except RequestException as e:
+            print(f"Error fetching URL {url}: {e}")
+            time.sleep(5)
+    return False
+
+
 @csrf_exempt
 def feeds(request):
     """文章页，有请求的话，更新文章页并返回，没有的话，从数据库拉取展示"""
@@ -169,15 +193,14 @@ def feeds(request):
 
         # 使用 feedparser 获取 RSS 订阅源中的文章
         articles = []
+
         for name, url in rss_data.items():
-            feed_data = feedparser.parse(url)
+            content = get_content(url)
+            if content == False:
+                print(f'{name},请求失败')
+                continue
+            feed_data = feedparser.parse(content)
             for entry_data in feed_data.entries:
-
-                # 只检查标题是否匹配过滤器中的关键字，如果匹配则跳过此文章
-
-                # if any(re.search(keyword, entry_data.title, re.IGNORECASE) for keyword in filter_data['filter_title']): # noqa:E501
-                #     continue
-
                 # 检查标题和描述是否匹配过滤器中的关键字，如果匹配则跳过此文章
                 if any(re.search(keyword, entry_data.title, re.IGNORECASE) or re.search(keyword, entry_data.summary, re.IGNORECASE) for keyword in filter_data['filter_title'] + filter_data['filter_summary']):  # noqa:E501
                     print(f'过滤：{entry_data.title}')
