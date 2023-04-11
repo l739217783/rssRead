@@ -324,20 +324,36 @@ def filter_add(request):
     #     return render(request, 'feeds.html', {'articles': articles})
 
 
+@csrf_exempt
 def api_articles(request):
     """获取文章列表(懒加载使用)"""
-
     html_tag_pattern = re.compile(r'<[^>]+>')  # 去除HTML标签的正则
 
-    start = int(request.GET.get('start', 0))
-    count = int(request.GET.get('count', 12))
-    articles = Article.objects.all()[start:start+count]
-    data = [{
-        'id': article.pk,
-        'title': article.title,
+    data = json.loads(request.body.decode('utf-8'))
+
+    print(data, type(data))
+    start = int(data.get('start', 0))
+    count = int(data.get('count', 0))
+    existing_titles = data.get('existingTitles', [])
+
+    # 过滤掉已出现的标题
+    articles = Article.objects.filter(read_state=False)[start:start+count]
+
+    data = []
+    for article in articles:
+        # 如果该文章标题已经在之前的卡片中出现过，则不返回该文章
+        if article.title in existing_titles:
+            continue
+
         # 去除所有的HTML元素，防止影响卡片布局
-        'summary': html_tag_pattern.sub('', article.summary),
-        'link': article.link,
-        'pub_date': article.pub_date
-    } for article in articles]
+        summary = html_tag_pattern.sub('', article.summary)
+
+        data.append({
+            'id': article.pk,
+            'title': article.title,
+            'summary': summary,
+            'link': article.link,
+            'pub_date': article.pub_date
+        })
+
     return JsonResponse(data, safe=False, json_dumps_params={'ensure_ascii': False})

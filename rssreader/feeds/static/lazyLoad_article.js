@@ -3,24 +3,38 @@ let loadedCount = document.querySelectorAll('.card').length;
 const cardGroup = document.getElementById('cardGroup');
 const loading = document.querySelector('.loading');
 const totalArticles = parseInt(document.getElementById('total-articles').getAttribute('data-total-articles'));
+const existingTitles = [];
+let isLoading = false;
 
 function lazyLoad() {
-  if (loadedCount >= totalArticles) {
-    // 所有文章都已经加载完毕，不需要继续懒加载
-    return;
-  }
-  if (isSearching) {
-    // 处在筛选器后的页面不搜索,因为懒加载会将所有文章加载出来
+  if (loadedCount >= totalArticles || isSearching || isLoading || window.scrollY === 0) {
+    /* 
+    符合任一条件则不执行懒加载
+    loadedCount >= totalArticles：所有文章都已经加载完毕，不需要继续懒加载
+    isSearching：处在筛选器后的页面不搜索,因为懒加载会将所有文章加载出来
+    isLoading：当前正在加载文章，不应该重复加载
+    window.scrollY === 0：页面还没有滚动过，不应该执行懒加载，防止页面刚加载时就执行懒加载
+    */
     return;
   }
 
+  isLoading = true; // 设置正在加载标记
+  document.querySelectorAll('.card-title').forEach(title => existingTitles.push(title.innerText));
   // 显示加载动画
   // 有侧边栏不用，会引起侧边栏闪烁
   // loading.style.display = 'flex';
 
   // 发送 Ajax 请求，获取更多文章数据
   const xhr = new XMLHttpRequest();
-  xhr.open('GET', 'feeds/api/articles?start=' + loadedCount + '&count=12', true);
+  xhr.open('POST', 'feeds/api/articles/', true);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+
+  const data = JSON.stringify({
+    start: loadedCount,
+    count: 12,
+    existingTitles: existingTitles,
+  });
+
   xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status === 200) {
       const articles = JSON.parse(xhr.responseText);
@@ -44,19 +58,20 @@ function lazyLoad() {
       });
       cardGroup.innerHTML += cardHtml;
       loadedCount = document.querySelectorAll('.card').length;
+      isLoading = false; // 重置正在加载标记
       loading.style.display = 'none';
     }
   };
-  xhr.send(null);
+  xhr.send(data);
 }
 
 // 滚动事件
 window.addEventListener('scroll', function () {
+  // 生成后的文章数量，卡片数量变动，所以要重新获取
   const scrollPosition = window.innerHeight + window.scrollY;
   const pageHeight = document.documentElement.scrollHeight;
-  if (scrollPosition >= pageHeight * 0.95 && !isSearching) {
+  if (scrollPosition >= pageHeight * 0.98 && !isSearching && !isLoading) {
     // 滚动到页面底部的 95% 时触发懒加载
     lazyLoad();
   }
 });
-

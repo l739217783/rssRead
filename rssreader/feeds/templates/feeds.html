@@ -146,6 +146,20 @@
   // 检测是否处于search的页面，是的话，关闭懒惰加载
   var isSearching = false;
 
+  // 等待文档完全加载后执行
+  window.addEventListener('load', function () {
+    // 解决刷新问题
+    // 自动滚动到页面顶部,防止刷新后页面停留在上次的位置,触发懒加载
+    let counter = 0;
+    const intervalId = setInterval(() => {
+      if (counter < 3) {
+        window.scrollTo(0, 0);
+        counter++;
+      } else {
+        clearInterval(intervalId);
+      }
+    }, 80);
+  });
 </script>
 <script src="{% static 'addReadStatus.js'%}"></script>
 <script src="{% static 'addDownEvent.js'%}"></script>
