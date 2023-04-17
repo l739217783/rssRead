@@ -1,7 +1,8 @@
 import json
 
-with open(r'D:\systemLibrary\Desktop\RSS\rssreader\feeds\static\filter_data.json', 'r') as f:
-    filter_data = json.load(f)
+with open(r'D:\systemLibrary\Desktop\RSS\rssreader\feeds\static\RSS_data.json', 'r', encoding='utf-8') as f:
+    data = json.load(f)
 
-for keyword in filter_data['filter_title'] + filter_data['filter_summary']:
-    print(keyword)
+print(type(data))
+for i in data:
+    print(i, type(i))

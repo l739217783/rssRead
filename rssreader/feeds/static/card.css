@@ -28,7 +28,8 @@
 
   /* 卡片大小 */
   .card {
-    height: 180px;
+    height: 180px !important;
+    /* height: auto; */
   }
 
   /* 卡片内容溢出问题 */

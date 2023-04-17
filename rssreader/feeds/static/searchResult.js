@@ -9,10 +9,18 @@ $(document).ready(function () {
         $(".dropdown-toggle").text("Select Author"); // 恢复按钮上的文本
 
         isSearching = true;
+        // 给后端传输参数，决定返回已读文章还是未读文章
+        read_state = window.location.pathname == '/feeds/' ? false : true
+        card_class = window.location.pathname == '/feeds/' ? 'card' : 'card card-gray';
+
         $.ajax({
             url: "feeds/search/",
             type: "POST",
-            data: { keyword: keyword, author: author },
+            data: {
+                keyword: keyword,
+                author: author,
+                read_state: read_state
+            },
             dataType: "json",
             success: function (data) {
                 // 这里的data是从服务器端返回的响应数据，可以通过该对象来获取响应数据
@@ -25,8 +33,8 @@ $(document).ready(function () {
                 $('#cardGroup').empty(); // 清空已有卡片
 
                 if (data == 'load_HomePage') {
-                    //没有任何选项的话,重新加载首页
-                    window.location.assign('/feeds/');
+                    //没有任何选项的话,重新加载页面
+                    location.reload()
                 }
                 // 循环遍历所有文章
                 for (var i = 0; i < data.length; i++) {
@@ -35,7 +43,7 @@ $(document).ready(function () {
                     // 生成HTML代码
                     var cardHtml = `
                         <div class="col col-sm-6 col-lg-3 mb-4">
-                            <div class="card" data-article-id="${article.id}">
+                            <div class="${card_class}" data-article-id="${article.id}">
                             <a href="${article.link}" class="card-link" target="_blank">
                                 <div class="card-body">
                                 <h5 class="card-title text-truncate">${article.title}</h5>

@@ -22,6 +22,8 @@ from .views import filter_delete
 from .views import search
 from .views import api_articles
 from .views import readed
+from .views import update_feed
+from .views import filter_update
 
 app_name = 'feeds'
 urlpatterns = [
@@ -29,12 +31,14 @@ urlpatterns = [
     path('mark-as-read/<int:article_id>/', mark_as_read,
          name='mark_as_read'),  # 标记已读
     path('manager/', manager, name='check'),  # 源管理界面
-    path('search/', search, name='check'),  # 源管理界面
+    path('search/', search, name='search'),  # 源管理界面
     path('add-feed/', add_feed, name='add_feed'),  # 添加源
+    path('update-feed/', update_feed, name='update_feed'),  # 编辑源
     path('delete-feed/', delete_feed, name='delete-feed'),  # 删除源
     path('filter/', filter, name='filter'),  # 过滤器
-    path('filter-add/', filter_add, name='filter'),  # 过滤器
-    path('filter-delete/', filter_delete, name='filter'),  # 过滤器
+    path('filter-add/', filter_add, name='filter_add'),  # 添加过滤器
+    path('filter-update/', filter_update, name='filter_update'),  # 修改过滤器
+    path('filter-delete/', filter_delete, name='filter-delete'),  # 删除过滤器
     path('api/articles/', api_articles, name='api_articles'),  # 获取文章列表(懒加载使用)
     path('readed/', readed, name='readed'),  # 已读文章
 ]

@@ -1,5 +1,7 @@
-// 为所有卡片增加点击事件，左键点击和中键点击的时候，卡片变灰色
+// 为卡片绑定点击事件
+
 function card_addCickEvent() {
+    /* 卡片增加点击事件， 点击后变灰，请求卡片为已读*/
     const cards = document.querySelectorAll('.card-link');
     cards.forEach(card => {
         card.addEventListener('mousedown', function (event) {
@@ -10,25 +12,10 @@ function card_addCickEvent() {
             }
         });
     });
-
-    // 全部已读按钮的点击事件
-    $("#archive").click(function () {
-        $(".card-link").each(function () {
-            var article_id = $(this).closest(".card").data("article-id");
-            markCardAsRead(article_id, true);
-            // $(this).closest(".card").remove();
-            this.closest('.card').classList.add('card-gray');
-
-        });
-        // setTimeout(() => {
-        //   window.location.reload();
-        // }, 2000);
-    });
-
 }
 
-// 请求修改卡片阅读状态
 function markCardAsRead(article_id, status) {
+    /* 请求后端，修改对应卡片的阅读状态 */
     var url = "/feeds/mark-as-read/" + article_id + "/";
     $.ajax({
         url: url,

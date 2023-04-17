@@ -5,20 +5,6 @@
 
 {% block head %}
 <style>
-  .nav-link {
-    width: 100%;
-    text-align: left;
-  }
-
-  a.nav-link:hover {
-    background: rgb(106, 106, 107)
-  }
-
-  #sidber,
-  nav.nav-link {
-    padding: 0;
-  }
-
   /* 设置中间按钮组位置 */
   .button-group-container {
     display: flex;
@@ -49,10 +35,12 @@
           d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
       </svg>
       <button type="button" class="btn btn-outline-secondary" id="sync">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down"
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat"
           viewBox="0 0 16 16">
+          <path
+            d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z" />
           <path fill-rule="evenodd"
-            d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z" />
+            d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z" />
         </svg>
       </button>
       <button type="button" class="btn btn-outline-secondary" id="archive">
@@ -143,8 +131,8 @@
 
 
 <script>
-  // 检测是否处于search的页面，是的话，关闭懒惰加载
-  var isSearching = false;
+
+  var isSearching = false; // 搜索状态
 
   // 等待文档完全加载后执行
   window.addEventListener('load', function () {
@@ -161,8 +149,9 @@
     }, 80);
   });
 </script>
+<!-- 其他有引用addReadStatus函数，所以必须在最前面 -->
 <script src="{% static 'addReadStatus.js'%}"></script>
-<script src="{% static 'addDownEvent.js'%}"></script>
+<script src="{% static 'feedBtnEvent.js'%}"></script>
 <script src="{% static 'lazyLoad_article.js'%}"></script>
 <script src="{% static 'searchResult.js'%}"></script>
 

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Rss manger{% endblock %}
 
@@ -16,198 +17,187 @@
         margin: 10px 0px;
     }
 
-
-
-    /* li.list-group-item {
-        display: inline-block;
-    } */
-
-    /* 使check feeds按钮的边角样式变回原样 */
-    .btn-outline-primary:not(:first-child) {
-        border-radius: 0;
+    .form-check-input[type="checkbox"] {
+        /* 复选框样式，位置 */
+        width: 1.25em;
+        height: 1.25em;
+        margin: 4px;
+        border-radius: 10px;
+        border-color: rgba(13, 110, 253, 0.7);
+        ;
+    }
+</style>
+<link rel="stylesheet" type="text/css" href="{% static 'card.css'%}" />
+<style>
+    #cardGroup {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
     }
 
-
-    .delete-button {
-        position: absolute;
-        right: -46px;
-        bottom: 1px;
-        height: 40px;
-    }
-
-    @media (max-width: 710px) {
-        .content {
-            margin-left: 30px;
-        }
+    .card {
+        flex-basis: calc(25% - 1rem);
+        margin-bottom: 1rem;
     }
 </style>
 {% endblock %}
 
+
 {% block content %}
 
 
-<!-- Button group -->
+<!-- 按钮组 -->
 <div class="button-group-container">
     <div class="btn-group float-end" role="group" aria-label="Basic example">
-        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
-            data-bs-target="#add-feed-modal">Add</button>
-        <button type="submit" name="action" value="delete" class="btn btn-outline-danger">Delete</button>
-        <form method="POST" class="btn-group-form">
-            {% csrf_token %}
-            <input type="hidden" name="check" value="True">
-            <button type="submit" name="action" value="check" class="btn btn-outline-primary rounded-end">Check
-                Feeds</button>
-        </form>
+        <button type="button" class="btn btn-outline-secondary" id="addCheckboxBtn" data-bs-target="#add-filter-modal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil"
+                viewBox="0 0 16 16">
+                <path
+                    d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+            </svg>
+        </button>
+        <button type="button" class="btn btn-outline-secondary" id="addBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg"
+                viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+            </svg>
+        </button>
+        <button type="button" class="btn btn-outline-secondary" id="delteBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill"
+                viewBox="0 0 16 16">
+                <path
+                    d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z" />
+            </svg>
+        </button>
     </div>
 </div>
 
-<div class="content">
-    {% if feeds %}
-    <div class="card w-75">
-        <ul class="list-group list-group-flush">
-            {% for feed in feeds %}
-            <div class="position-relative">
-                {% if check %}
-                {% if feed.status == 'green' %}
-
-                <li class="list-group-item">{{ feed.name }}<span style="color:green;" class="float-end">OK</span>
-                </li>
-
-                {% elif feed.status == 'yellow' %}
-
-                <li class="list-group-item">{{ feed.name }}<span style="color:orange;" class="float-end">Slow</span>
-
-                </li>
-                {% else %}
-
-                <li class="list-group-item">{{ feed.name }}<span style="color:red;" class="float-end">Failed</span>
-                </li>
-
-                {% endif %}
-                {% else %}
-
-                <li class="list-group-item">{{ feed }}</li>
-
-                {% endif %}
+<!-- 内容卡片组 -->
+<div id="cardGroup" class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 justify-content-start">
+    {% for feed_name,feed_data in feeds.items %}
+    <div class="col col-sm-6 col-lg-3 mb-4">
+        <div class="card">
+            <div class="form-check">
+                <a href="{{ feed_data.href }}" class="card-link card-body-link" target="_blank">
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate">{{ feed_name }}</h5>
+                        <p class="card-text d">{{ feed_data.description}}</p>
+                    </div>
+                </a>
+                <div class="card-footer position-absolute bottom-0 start-0 end-0 text-end text-muted small">
+                    <button type="button" class="btn btn-primary btn-sm edit-feed-btn" data-bs-toggle="modal"
+                        data-bs-target="#editModal" data-feed-title="{{ feed_name }}"
+                        data-feed-link="{{ feed_data.href }}" data-feed-description="{{ feed_data.description }}">
+                        编辑
+                    </button>
+                </div>
             </div>
-            {% endfor %}
-        </ul>
+        </div>
     </div>
-    {% endif %}
+    {% endfor %}
 </div>
 
 
-
-
-
-<!-- Modal for adding new RSS feed -->
-<div class="modal fade" id="add-feed-modal" tabindex="-1" aria-labelledby="add-feed-modal-label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+<!-- 编辑模态窗口 -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="add-feed-modal-label">Add New Feed</h5>
+                <h5 class="modal-title" id="editModalLabel">编辑 RSS 源</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="add-feed-form">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" name="name">
+                <form>
+                    <div class="form-group">
+                        <label for="feedTitleInput">源</label>
+                        <input type="text" class="form-control" id="feedTitleInput" required disabled>
                     </div>
-                    <div class="mb-3">
-                        <label for="url" class="form-label">URL</label>
-                        <input type="text" class="form-control" id="url" name="url">
+                    <div class="form-group">
+                        <label for="feedLinkInput">链接</label>
+                        <input type="text" class="form-control" id="feedLinkInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="feedDescriptionInput">描述</label>
+                        <input type="text" class="form-control" id="feedDescriptionInput" required>
                     </div>
                 </form>
             </div>
+
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="add-feed-button">Add</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn">保存</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- 添加源模态框 -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">添加 RSS 源</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="addFeedTitleInput">标题</label>
+                        <input type="text" class="form-control" id="addFeedTitleInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addFeedLinkInput">链接</label>
+                        <input type="text" class="form-control" id="addFeedLinkInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addFeedDescriptionInput">描述</label>
+                        <input type="text" class="form-control" id="addFeedDescriptionInput" required>
+                    </div>
+                </form>
+            </div>
 
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="addFeedBtn">添加</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-
-
+{% csrf_token %}
 <script>
-    $(document).ready(function () {
-        $("#add-feed-btn").click(function () {
-            $("#add-feed-modal").modal("show");
-        });
+    // 脚本文件引用
+    const addFeedUrl = "{% url 'feeds:add_feed' %}";
+    const delFeedUrl = "{% url 'feeds:delete-feed' %}";
+    const updateFeedUrl = "{% url 'feeds:update_feed' %}";
+    const csrf_token = "{{ csrf_token }}";
+</script>
+<script src="{% static 'managerBtnEvent.js'%}"></script>
+<script>
+    window.onload = function () {
+        toggleCheckboxDisplay();
+        addRss();
+        deleteRss();
+        refreshRss();
 
-        $("#add-feed-button").click(function () {
-            $.ajax({
-                url: "/feeds/add-feed/",
-                type: "POST",
-                data: $("#add-feed-form").serialize(),
-                success: function () {
-                    window.location.reload();
+
+        // 重置卡片主体(a)的点击事件
+        // 有复选框则选中/取消选中，否则打开链接
+        document.querySelectorAll('.card-body-link').forEach(function (cardLink) {
+            const checkbox = cardLink.querySelector('.form-check-input');
+            cardLink.addEventListener('click', function (event) {
+                event.preventDefault(); // 禁用默认行为
+                const checkbox = cardLink.querySelector('.form-check-input');
+                if (checkbox && checkbox.checked) {
+                    checkbox.checked = false;
+                } else if (checkbox) {
+                    checkbox.checked = true;
+                } else {
+                    window.open(cardLink.getAttribute('href'), '_blank');
                 }
             });
         });
-    });
-
-
-
-    $("button[name='action'][value='delete']").click(function () {
-        // 找到所有 li.list-group-item 元素
-        var listItems = $(".list-group-item");
-
-        // 如果按钮已经处于 active 状态，则移除该状态并删除所有删除按钮
-        if ($(this).hasClass("active")) {
-            $(this).removeClass("active");
-            $(".btn-secondary.delete-button").remove();
-        } else {
-            // 否则，为按钮添加 active 类，然后为每个列表项添加删除按钮
-            $(this).addClass("active");
-            console.log(listItems)
-            $.each(listItems, function (index, listItem) {
-                // 在每个元素的内部添加删除按钮
-                var deleteButton = $("<button/>")
-                    .addClass("btn btn-secondary delete-button")
-                    .html('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/></svg>')
-                    .click(function () {
-                        // 当删除按钮被点击时执行
-                        var feedName = $(listItem).contents().filter(function () {
-                            return this.nodeType === Node.TEXT_NODE;
-                        }).text().trim();
-
-
-                        // 发送 AJAX 请求删除对应的源
-                        $.ajax({
-                            url: "{% url 'feeds:delete-feed' %}",
-                            method: "POST",
-                            data: {
-                                "name": feedName
-                            },
-                            success: function (response) {
-                                // 当 AJAX 请求成功时执行
-                                if (response.success) {
-                                    // 从页面上删除对应的 li.list-group-item 元素
-                                    $(listItem).remove();
-                                } else {
-                                    // 显示错误信息
-                                    alert(response.message);
-                                }
-                            },
-                            error: function () {
-                                // 当 AJAX 请求出错时执行
-                                alert("An error occurred while deleting the feed.");
-                            }
-                        });
-                    });
-
-                // 将删除按钮添加到列表项内部
-                $(listItem).after(deleteButton);
-            });
-        }
-    });
-
-
-
+    };
 </script>
 {% endblock %}

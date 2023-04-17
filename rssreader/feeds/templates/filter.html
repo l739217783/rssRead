@@ -36,20 +36,49 @@
             margin-left: 30px;
         }
     }
+
+    li input[type="checkbox"] {
+        float: right;
+        width: 1.25em;
+        height: 1.25em;
+        /* margin: 4px; */
+        border-radius: 10px !important;
+        border-color: rgba(13, 110, 253, 0.7) !important;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 
-
-<!-- Button group -->
+<!-- 按钮组 -->
 <div class="button-group-container">
     <div class="btn-group float-end" role="group" aria-label="Basic example">
-        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal"
-            data-bs-target="#add-keyword-modal">Add</button>
-        <button type="submit" name="action" value="delete" class="btn btn-outline-danger">Delete</button>
+        <button type="button" class="btn btn-outline-secondary" id="edit-btn" data-bs-target="#add-filter-modal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil"
+                viewBox="0 0 16 16">
+                <path
+                    d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+            </svg>
+        </button>
+        <button type="button" class="btn btn-outline-secondary" id="addBtn" data-bs-toggle="modal"
+            data-bs-target="#add-keyword-modal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg"
+                viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+            </svg>
+        </button>
+        <button type="button" class="btn btn-outline-secondary" id="delteBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill"
+                viewBox="0 0 16 16">
+                <path
+                    d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5Zm-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5ZM4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06Zm6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528ZM8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5Z" />
+            </svg>
+        </button>
     </div>
 </div>
+
+
 
 <!-- 过滤词列表组 -->
 <div class="content">
@@ -63,7 +92,9 @@
             <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
                 <div class="list-group">
                     {% for title_kw in data.filter_title %}
-                    <li class="list-group-item">{{ title_kw }}</li>
+                    <li class="list-group-item">{{ title_kw }}
+                        <input type="checkbox">
+                    </li>
                     {% endfor %}
                 </div>
             </div>
@@ -76,7 +107,9 @@
             <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
                 <div class="list-group">
                     {% for summary_kw in data.filter_summary %}
-                    <li class="list-group-item">{{ summary_kw }}</li>
+                    <li class="list-group-item">{{ summary_kw }}
+                        <input type="checkbox">
+                    </li>
                     {% endfor %}
                 </div>
             </div>
@@ -84,8 +117,37 @@
     </div>
 </div>
 
+<!-- 编辑模态窗 -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel">编辑</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="edit-input" class="form-label">类别</label>
+                    <select class="form-select" id="edit-input-1">
+                        <option value="标题">标题</option>
+                        <option value="描述">描述</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="edit-input" class="form-label">过滤词</label>
+                    <input type="text" class="form-control" id="edit-input-2">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="save-btn">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-<!-- Modal for adding new RSS feed -->
+
+<!-- 添加模态窗-->
 <div class="modal fade" id="add-keyword-modal" tabindex="-1" aria-labelledby="add-feed-modal-label" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -126,8 +188,145 @@
 </div>
 
 
+<script>
+    let oldCategory;
+    let oldKeyword;
+
+    // 编辑按钮点击事件监听器
+    const editBtns = document.querySelector("#edit-btn");
+    editBtns.addEventListener("click", function () {
+        if (document.querySelectorAll("input:checked").length > 1) {
+            alert("只能选择一个输入框进行编辑！")
+            return;
+        }
+        const checkbox = document.querySelector("input:checked");
+
+        // 类别
+        try {
+            const parentCollapse = checkbox.closest('.collapse')
+            if (parentCollapse.id === 'collapseOne') {
+                oldCategory = '标题'
+            } else if (parentCollapse.id === 'collapseTwo') {
+                oldCategory = '描述'
+            }
+
+        } catch (TypeError) {
+            console.log('选择为空');
+            return;
+        }
+
+        // 关键字
+        oldKeyword = checkbox.parentElement.textContent.trim();
+
+        //写入编辑模态窗
+        document.querySelector("#edit-input-1").value = oldCategory;
+        document.querySelector("#edit-input-2").value = oldKeyword;
+        const modal = new bootstrap.Modal(editModal);
+        modal.show();
+    });
 
 
+    //  模态窗保存按钮点击事件监听器
+    const saveBtn = document.querySelector("#save-btn");
+    saveBtn.addEventListener("click", function () {
+
+        // 新的 类别 和 关键字
+        const category = document.querySelector("#edit-input-1").value;
+        const keyword = document.querySelector("#edit-input-2").value;
+
+        if (category === oldCategory && keyword === oldKeyword) {
+            alert("未修改！");
+            return;
+        }
+
+        const data = {
+            'old': {
+                'category': oldCategory,
+                'keyword': oldKeyword
+            },
+            'new': {
+                'category': category,
+                'keyword': keyword
+            }
+        };
+
+        fetch('feeds/filter-update/', {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log("更新成功！", data);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+                modal.hide();
+                location.reload();
+                // 更新成功后的操作
+            })
+            .catch((error) => {
+                console.error("更新失败！", error);
+                // 更新失败后的操作
+            });
+    });
+
+</script>
+
+<script>
+
+    // 删除按钮绑定事件
+    const deleteBtn = document.querySelector("#delteBtn");
+    let keywordList = [];
+
+    deleteBtn.addEventListener("click", function () {
+        // 遍历所有选中的复选框，将关键字添加到数组中
+        const checkboxes = document.querySelectorAll("input:checked");
+        checkboxes.forEach(function (checkbox) {
+            const listItem = checkbox.parentElement;
+            const keyword = listItem.textContent.trim();
+            keywordList.push(keyword);
+        });
+
+        if (keywordList.length === 0) {
+            alert("未选择！");
+            return;
+        }
+
+        // 发送 AJAX 请求删除对应的关键字
+        $.ajax({
+            url: "/feeds/filter-delete/",
+            method: "POST",
+            data: JSON.stringify(keywordList),
+            contentType: "application/json",
+            success: function (response) {
+                // 当 AJAX 请求成功时执行
+                if (response.success) {
+                    // 从页面上删除对应的 li.list-group-item 元素
+                    checkboxes.forEach(function (checkbox) {
+                        const listItem = checkbox.parentElement;
+                        const list = listItem.parentElement;
+                        list.removeChild(listItem);
+                    });
+                    console.log(`已删除: ${keywordList}`);
+                } else {
+                    // 显示错误信息
+                    alert(response.message);
+                }
+            },
+            error: function () {
+                // 当 AJAX 请求出错时执行
+                alert("An error occurred while deleting the feed.");
+            },
+            complete: function () {
+                // AJAX 请求完成后执行
+                keywordList = []; // 重置数组
+            },
+        });
+    });
+
+
+</script>
 <script>
     // 列表聚焦效果
     const accordionItems = document.querySelectorAll('.list-group-item-action');
@@ -144,7 +343,6 @@
 
 
     $(document).ready(function () {
-
         $("#add-button").click(function () {
             var types = $('input[name="type"]:checked');
             if (types.length === 0) {
@@ -188,28 +386,6 @@
                         }).text().trim();
 
 
-                        // 发送 AJAX 请求删除对应的源
-                        $.ajax({
-                            url: "/feeds/filter-delete/",
-                            method: "POST",
-                            data: {
-                                "name": KeyWord
-                            },
-                            success: function (response) {
-                                // 当 AJAX 请求成功时执行
-                                if (response.success) {
-                                    // 从页面上删除对应的 li.list-group-item 元素
-                                    $(listItem).remove();
-                                } else {
-                                    // 显示错误信息
-                                    alert(response.message);
-                                }
-                            },
-                            error: function () {
-                                // 当 AJAX 请求出错时执行
-                                alert("An error occurred while deleting the feed.");
-                            }
-                        });
                     });
 
                 // 将删除按钮添加到列表项内部

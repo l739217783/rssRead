@@ -6,7 +6,6 @@ import feedparser
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-import urllib.request
 
 from .models import Article
 from django.db.models import Q
@@ -34,41 +33,42 @@ def mark_as_read(request, article_id):
 def add_feed(request):
     if request.method == 'POST':
         # 获取表单提交的数据
-        name = request.POST.get('name')
-        url = request.POST.get('url')
-        if name and url:
+        name = request.POST.get('feedName')
+        link = request.POST.get('feedLink')
+        description = request.POST.get('feedDescription')
+        if name and link:
             # 打开 RSS_data.json 文件
             data_file = 'feeds/static/RSS_data.json'
             with open(data_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             # 添加新的 RSS 源到数据中
-            data[name] = url
+            data[name] = {'href': link, 'description': description}
             # 保存到文件
             with open(data_file, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
-        return render(request, 'manager.html')
+            return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'message': '添加失败'})
 
 
-@csrf_exempt
 def delete_feed(request):
     """删除指定源"""
-    print('执行删除')
-    name = request.POST.get('name')
+    names = request.POST.getlist('names')
 
     with open('feeds/static/RSS_data.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
 
     # 删除json文件中的源
-    if name in data:
-        data.pop(name)
+    for name in names:
+        if name in data:
+            data.pop(name)
 
-        with open('feeds/static/RSS_data.json', 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
-    else:
-        print(f'源不存在:{name}')
+            with open('feeds/static/RSS_data.json', 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+        else:
+            print(f'源不存在:{name}')
 
-    # 删除数据库中的源
-    Article.objects.filter(author=name).delete()
+        # 删除数据库中的源
+        # Article.objects.filter(author=name).delete()
 
     return JsonResponse({'success': True})
 
@@ -78,32 +78,31 @@ def manager(request):
     with open('feeds/static/RSS_data.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
 
+    return render(request, 'manager.html', {'feeds': data})
+
+
+def update_feed(request):
     if request.method == 'POST':
-        # 检测源的连通性
-        results = []
-        for name, url in data.items():
-            start = time.time()
-            try:
-                urllib.request.urlopen(url, timeout=5)
-                elapsed_time = time.time() - start
-                if elapsed_time < 1:
-                    results.append({'name': name, 'status': 'green'})
-                elif elapsed_time < 5:
-                    results.append({'name': name, 'status': 'yellow'})
-                else:
-                    results.append({'name': name, 'status': 'red'})
-            except:  # noqa:E722
-                results.append({'name': name, 'status': 'red'})
-        return render(request, 'manager.html', {
-            'feeds': results,
-            'check': True
-        })
+        feed_name = request.POST.get('feedName')
+        feed_link = request.POST.get('feedLink')
+        feed_description = request.POST.get('feedDescription')
 
-    else:
-        # 不需要检测，只显示源的名称
-        results = [i for i in data]
+        print(feed_name, feed_link, feed_description)  # 调试输出表单提交的数据
 
-    return render(request, 'manager.html', {'feeds': results, 'check': False})
+        with open('feeds/static/RSS_data.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        # 修改对应的 feed 数据
+        data[feed_name]['href'] = feed_link
+        data[feed_name]['description'] = feed_description
+
+        # 保存数据
+        with open('feeds/static/RSS_data.json', 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+
+        return JsonResponse({'success': True})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 
 @csrf_exempt
@@ -113,6 +112,8 @@ def search(request):
         print(f'请求数据{request.POST}')
         keyword = request.POST.get('keyword', '')
         author = request.POST.get('author', '')
+        read_state = request.POST.get('read_state', '')
+        read_state = True if read_state == 'true' else False
 
         # print(type(keyword), type(author))
         # print(keyword, author)
@@ -121,13 +122,17 @@ def search(request):
             # 条件为空，重新加载首页
             return JsonResponse('load_HomePage', safe=False)
         elif keyword and author:
+            # 筛选作者和关键字
             articles = Article.objects.filter(
-                Q(title__contains=keyword) | Q(summary__contains=keyword), author=author, read_state=False)
+                Q(title__contains=keyword) | Q(summary__contains=keyword), author=author, read_state=read_state)
         elif keyword:
+            # 筛选关键字
             articles = Article.objects.filter(
-                Q(title__contains=keyword) | Q(summary__contains=keyword), read_state=False)
+                Q(title__contains=keyword) | Q(summary__contains=keyword), read_state=read_state)
         else:
-            articles = Article.objects.filter(author=author, read_state=False)
+            # 筛选作者
+            articles = Article.objects.filter(
+                author=author, read_state=read_state)
 
         result = []
         html_tag_pattern = re.compile(r'<[^>]+>')  # 去除HTML标签的正则
@@ -151,8 +156,13 @@ def search(request):
 def readed(request):
     """从数据库拉取展示已读文章页"""
     articles = Article.objects.filter(read_state=True)
-    print(articles)
-    return render(request, 'readed.html', {'articles': articles})
+
+    # 筛选获取所有已读文章的作者
+    name_list = Article.objects.filter(
+        read_state=True).values_list('author', flat=True).distinct()
+
+    # print(articles)
+    return render(request, 'readed.html', {'articles': articles, 'name_list': name_list})
 
 
 def get_content(url, retry_times=3):
@@ -250,20 +260,21 @@ def filter(request):
 @csrf_exempt
 def filter_delete(request):
     """删除指定关键"""
-    keyword = request.POST.get('name')
-    print(f'删除关键字:{keyword}')
+    if request.method == "POST":
+        keywords = json.loads(request.body)
 
-    with open('feeds/static/filter_data.json', 'r', encoding='utf-8') as f:
-        data = json.load(f)
+        with open('feeds/static/filter_data.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
 
-    for key in data:
-        if keyword in data[key]:
-            data[key].remove(keyword)
+        data = {key: [kw for kw in data[key] if kw not in keywords]
+                for key in data}
 
-    with open('feeds/static/filter_data.json', "w", encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False)
+        with open('feeds/static/filter_data.json', "w", encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False)
 
-    return JsonResponse({'success': True})
+        return JsonResponse({'success': True})
+    else:
+        return JsonResponse({'success': False, 'message': '请求方法错误！'})
 
 
 @csrf_exempt
@@ -305,23 +316,47 @@ def filter_add(request):
     else:
         return JsonResponse({"success": False, "message": "Invalid request method."})
 
-    # def feeds(request):
-    #     articles = []
-    #
-    #     with open(r'D:\systemLibrary\Desktop\RSS\rssreader\feeds\test.html', encoding='utf-8') as f:
-    #         content = f.read()
-    #     feed_data = feedparser.parse(content)
-    #     for entry_data in feed_data.entries:
-    #         articles.append({
-    #             'title': entry_data.title,
-    #             'link': entry_data.link,
-    #             'pub_date': time.strftime("%Y-%m-%d %H:%M", entry_data.published_parsed),
-    #             'summary': entry_data.summary,
-    #             'read_state': False,
-    #         })
-    #
-    #     # 'summary': entry_data.summary if entry_data.summary != entry_data.title else ''
-    #     return render(request, 'feeds.html', {'articles': articles})
+
+@csrf_exempt
+def filter_update(request):
+    """ 更新过滤器 """
+    if request.method == "POST":
+        data = json.loads(request.body)
+        old_text = data.get('old')
+        new_text = data.get('new')
+    else:
+        return None
+
+    with open("feeds/static/filter_data.json", "r", encoding='utf-8') as f:
+        file_data = json.load(f)
+
+    # 旧的类别
+    category = 'filter_title' if old_text['category'] == '标题' else 'filter_summary'
+
+    # 仅更新过滤词,从对应类别中删除旧的关键字，添加新的关键字
+    if old_text['keyword'] in file_data[category]:
+        file_data[category].remove(old_text['keyword'])
+        file_data[category].append(new_text['keyword'])
+
+    # 如果类别更新，删除旧类别关键字，新类别添加关键字
+    if old_text['category'] != new_text['category']:
+        if old_text['category'] == '标题':
+            """  
+            如果原先是旧的类别是标题，修改的新的类别是描述
+            那么从标题类别中移除关键字，给描述类别添加关键字
+            相当于转移关键字
+            """
+            file_data['filter_title'].remove(old_text['keyword'])
+            file_data['filter_summary'].append(new_text['keyword'])
+        else:
+            file_data['filter_summary'].remove(old_text['keyword'])
+            file_data['filter_title'].append(new_text['keyword'])
+
+    # 保存
+    with open("feeds/static/filter_data.json", "w", encoding='utf-8') as f:
+        json.dump(file_data, f, ensure_ascii=False)  # 写入文件
+
+    return JsonResponse({"success": True})
 
 
 @csrf_exempt
@@ -331,13 +366,14 @@ def api_articles(request):
 
     data = json.loads(request.body.decode('utf-8'))
 
-    print(data, type(data))
     start = int(data.get('start', 0))
     count = int(data.get('count', 0))
     existing_titles = data.get('existingTitles', [])
+    read_state = data.get('read_state')
+    # author = data.get('author')
 
-    # 过滤掉已出现的标题
-    articles = Article.objects.filter(read_state=False)[start:start+count]
+    articles = Article.objects.filter(read_state=read_state)[
+        start:start+count]
 
     data = []
     for article in articles:

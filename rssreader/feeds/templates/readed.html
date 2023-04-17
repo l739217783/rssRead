@@ -4,47 +4,151 @@
 {% block title %}Rss Read{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" type="text/css" href="{% static 'loading.css'%}">
-<link rel="stylesheet" type="text/css" href="{% static 'card.css'%}">
+<style>
+  /* 设置中间按钮组位置 */
+  .button-group-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  /* 模态窗口使用 */
+  .dropdown-menu {
+    /* 设置下拉长度与按钮一致 */
+    width: 383px;
+  }
+</style>
+<link rel="stylesheet" type="text/css" href="{% static 'loading.css'%}" />
+<link rel="stylesheet" type="text/css" href="{% static 'card.css'%}" />
 {% endblock %}
+
 {% block content %}
 
 
+<!-- 按钮组 -->
+<div class="button-group-container">
+  <div class="btn-group float-end" role="group" aria-label="Basic example">
+    <button type="button" class="btn btn-outline-secondary" id="filter" data-bs-toggle="modal"
+      data-bs-target="#add-filter-modal">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
+        viewBox="0 0 16 16">
+        <path
+          d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+      </svg>
+      <button type="button" class="btn btn-outline-secondary" id="archive">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-archive"
+          viewBox="0 0 16 16">
+          <path
+            d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1V2zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5H2zm13-3H1v2h14V2zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z" />
+        </svg>
+      </button>
+  </div>
+</div>
+
+
+
+<!-- 搜索模态窗 -->
+<div class="modal fade" id="add-filter-modal" tabindex="-1" aria-labelledby="add-feed-modal-label" aria-hidden="true">
+  <!-- modal-dialog modal-dialog-centered 居中样式 -->
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Search Form</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="search-form">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="keyword" class="col-form-label">Keyword:</label>
+            <input type="text" class="form-control" id="keyword-input">
+          </div>
+          <div class="input-group mb-3">
+            <label for="author" class="input-group-text">Author:</label>
+            <button class="btn btn-outline-secondary dropdown-toggle flex-grow-1" type="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Select Author
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="author-dropdown">
+              {% for name in name_list %}
+              <li><a class="dropdown-item" href="#" data-value="{{ name }}">{{ name }}</a></li>
+              {% endfor %}
+            </ul>
+            <input type="hidden" name="author" id="author-input">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="search-btn">Search</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <!-- 懒加载计算数量使用 -->
-<div id="total-articles" data-total-articles="{{ articles|length }}" style="display: none;"></div>
-
+<div id="total-articles" data-total-articles="{{ articles|length }}" style="display: none"></div>
 
 <!-- 内容卡片组 -->
 <div id="cardGroup" class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
-    {% for article in articles %}
-    {% if article.read_state %}
-    <div class="col col-sm-6 col-lg-3 mb-4">
-        <div class="card card-gray" data-article-id="{{ article.pk }}">
-            <a href="{{ article.link }}" class="card-link" target="_blank">
-                <div class="card-body">
-                    <h5 class="card-title text-truncate">{{ article.title }}</h5>
-                    <p class="card-text d">{{ article.summary|truncatechars:65 }}</p>
-                </div>
-                <div class="card-footer position-absolute bottom-0 start-0 end-0 text-end text-muted small">
-                    {{ article.pub_date }}
-                </div>
-            </a>
+  {% for article in articles|slice:":16" %} {% if article.read_state %}
+  <div class="col col-sm-6 col-lg-3 mb-4">
+    <div class="card card-gray" data-article-id="{{ article.pk }}">
+      <a href="{{ article.link }}" class="card-link" target="_blank">
+        <div class="card-body">
+          <h5 class="card-title text-truncate">{{ article.title }}</h5>
+          <p class="card-text d">{{ article.summary|truncatechars:65 }}</p>
         </div>
+        <div class="card-footer position-absolute bottom-0 start-0 end-0 text-end text-muted small">
+          {{ article.pub_date }}
+        </div>
+      </a>
     </div>
-    {% endif %}
-    {% endfor %}
+  </div>
+  {% endif %} {% endfor %}
 </div>
 
 <div class="loading">
-    <!-- 加载动画 -->
-    <div class="loading-dot"></div>
-    <div class="loading-dot"></div>
-    <div class="loading-dot"></div>
+  <!-- 加载动画 -->
+  <div class="loading-dot"></div>
+  <div class="loading-dot"></div>
+  <div class="loading-dot"></div>
 </div>
+<script>
+
+  var isSearching = false; // 搜索状态
 
 
+  // 等待文档完全加载后执行
+  window.addEventListener("load", function () {
+    // 解决刷新问题
+    // 自动滚动到页面顶部,防止刷新后页面停留在上次的位置,触发懒加载
+    let counter = 0;
+    const intervalId = setInterval(() => {
+      if (counter < 3) {
+        window.scrollTo(0, 0);
+        counter++;
+      } else {
+        clearInterval(intervalId);
+      }
+    }, 80);
+  });
 
+
+  $(document).ready(function () {
+    /* 下拉菜单选择作者后，将作者的值写入 input 中 */
+    $('.dropdown-item').click(function (event) {
+      // 阻止表单的自动提交,防止点击后页面刷新
+      event.preventDefault();
+      var value = $(this).data('value');
+      $('#author-input').val(value);
+      $(this).closest('.input-group').find('.dropdown-toggle').text($(this).text());
+    });
+  });
+</script>
+<script src="{% static 'lazyLoad_article.js'%}"></script>
 <script src="{% static 'editCard_readstatus.js'%}"></script>
+<script src="{% static 'searchResult.js'%}"></script>
 
 {% endblock %}

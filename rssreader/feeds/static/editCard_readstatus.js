@@ -1,8 +1,7 @@
-// 修改卡片已读状态成未读状态
+// 为卡片绑定点击事件
 
-
-// 为所有卡片增加点击事件，左键点击和中键点击的时候，卡片变白色，同时修改卡片的成未读状态
 function card_addCickEvent() {
+    /* 卡片增加点击事件， 点击后变白，请求恢复卡片为未*/
     const cards = document.querySelectorAll('.card-link');
     cards.forEach(card => {
         card.addEventListener('mousedown', function (event) {
@@ -18,9 +17,8 @@ function card_addCickEvent() {
     });
 }
 
-
-// 阻止链接的默认行为
 function handleLinkClick(event) {
+    /* 阻止链接的默认行为 */
     event.preventDefault();
 }
 
@@ -30,12 +28,8 @@ links.forEach(link => {
     link.addEventListener('click', handleLinkClick);
 });
 
-
-
-
-
-// 请求修改卡片阅读状态
 function markCardAsRead(article_id, status) {
+    /* 请求修改卡片阅读状态，修改为未读状态 */
     var url = "/feeds/mark-as-read/" + article_id + "/";
     $.ajax({
         url: url,

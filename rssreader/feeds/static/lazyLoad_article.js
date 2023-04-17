@@ -2,9 +2,10 @@
 let loadedCount = document.querySelectorAll('.card').length;
 const cardGroup = document.getElementById('cardGroup');
 const loading = document.querySelector('.loading');
+// const authorValue = document.getElementById('author-input').innerText;
 const totalArticles = parseInt(document.getElementById('total-articles').getAttribute('data-total-articles'));
 const existingTitles = [];
-let isLoading = false;
+let isLoading = false; // 加载标记
 
 function lazyLoad() {
   if (loadedCount >= totalArticles || isSearching || isLoading || window.scrollY === 0) {
@@ -20,9 +21,6 @@ function lazyLoad() {
 
   isLoading = true; // 设置正在加载标记
   document.querySelectorAll('.card-title').forEach(title => existingTitles.push(title.innerText));
-  // 显示加载动画
-  // 有侧边栏不用，会引起侧边栏闪烁
-  // loading.style.display = 'flex';
 
   // 发送 Ajax 请求，获取更多文章数据
   const xhr = new XMLHttpRequest();
@@ -33,7 +31,14 @@ function lazyLoad() {
     start: loadedCount,
     count: 12,
     existingTitles: existingTitles,
+    // 给后端传输参数，决定返回已读文章还是未读文章
+    read_state: window.location.pathname == '/feeds/' ? false : true,
+    // 如果模态框中有作者信息，则传递给后端，否则传递空字符串
+    // author: authorValue ? authorValue : '',
   });
+
+  // 通过网址，决定后续生成卡片的样式
+  card_class = window.location.pathname == '/feeds/' ? 'card' : 'card card-gray';
 
   xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status === 200) {
@@ -42,7 +47,7 @@ function lazyLoad() {
       articles.forEach(article => {
         cardHtml += `
           <div class="col col-sm-6 col-lg-3 mb-4">
-            <div class="card" data-article-id="${article.id}">
+            <div class="${card_class}" data-article-id="${article.id}">
               <a href="${article.link}" class="card-link" target="_blank">
                 <div class="card-body">
                   <h5 class="card-title text-truncate">${article.title}</h5>
@@ -59,6 +64,15 @@ function lazyLoad() {
       cardGroup.innerHTML += cardHtml;
       loadedCount = document.querySelectorAll('.card').length;
       isLoading = false; // 重置正在加载标记
+      card_addCickEvent();
+      /*  
+      为新加载的卡片增加点击事件
+      在feeds页面的话，引用的是addReadStatus.js中的card_addCickEvent()函数
+      在readed页面的话，引用的是editCard_readstatus.js中的card_addCickEvent()函数
+      前者是将卡片变灰，修改成已读
+      后者是将卡片变白，修改成未读
+      */
+      // 
       loading.style.display = 'none';
     }
   };
