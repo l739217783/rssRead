@@ -1,11 +1,30 @@
 // 懒加载代码
-let loadedCount = document.querySelectorAll('.card').length;
-const cardGroup = document.getElementById('cardGroup');
-const loading = document.querySelector('.loading');
+let loadedCount = document.querySelectorAll('.card').length; // 卡片组中已经加载的卡片数量
+const cardGroup = document.getElementById('cardGroup'); // 卡片组
+const loading = document.querySelector('.loading'); // 加载动画
+const addCheckboxBtn = document.getElementById('addCheckboxBtn'); // 编辑按钮
+
+
 // const authorValue = document.getElementById('author-input').innerText;
 const totalArticles = parseInt(document.getElementById('total-articles').getAttribute('data-total-articles'));
 const existingTitles = [];
 let isLoading = false; // 加载标记
+
+const checkbox = document.querySelectorAll('input[type="checkbox"]')
+
+function getCheckedElements() {
+  /* 筛选出所有被选中的复选框元素(用于记录还原) */
+  const checkboxes = document.querySelectorAll('.form-check-input');
+  const checkedElements = [];
+  checkboxes.forEach((checkbox) => {
+    if (checkbox.checked) {
+      checkedElements.push(checkbox);
+    }
+  });
+  return checkedElements;
+}
+
+
 
 function lazyLoad() {
   if (loadedCount >= totalArticles || isSearching || isLoading || window.scrollY === 0) {
@@ -21,6 +40,10 @@ function lazyLoad() {
 
   isLoading = true; // 设置正在加载标记
   document.querySelectorAll('.card-title').forEach(title => existingTitles.push(title.innerText));
+
+
+  // 记录复选框被选中的元素
+  const checkedElements = Array.from(document.querySelectorAll('.form-check-input:checked'));
 
   // 发送 Ajax 请求，获取更多文章数据
   const xhr = new XMLHttpRequest();
@@ -40,15 +63,23 @@ function lazyLoad() {
   // 通过网址，决定后续生成卡片的样式
   card_class = window.location.pathname == '/feeds/' ? 'card' : 'card card-gray';
 
+
+
   xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status === 200) {
       const articles = JSON.parse(xhr.responseText);
       let cardHtml = '';
+      let lastId = checkbox.length + 1;
       articles.forEach(article => {
+
+        // 如果是编辑状态，则在卡片中添加复选框
+        const checkbox_txt = addCheckboxBtn.classList.contains('active') ? `<input type="checkbox" id="${lastId}" class="form-check-input position-absolute top-0 end-0" value="on">` : '';
+
         cardHtml += `
           <div class="col col-sm-6 col-lg-3 mb-4">
             <div class="${card_class}" data-article-id="${article.id}">
               <a href="${article.link}" class="card-link" target="_blank">
+                ${checkbox_txt}
                 <div class="card-body">
                   <h5 class="card-title text-truncate">${article.title}</h5>
                   <p class="card-text d">${article.summary.slice(0, 65)}</p>
@@ -60,11 +91,13 @@ function lazyLoad() {
             </div>
           </div>
         `;
+        lastId++;
       });
       cardGroup.innerHTML += cardHtml;
       loadedCount = document.querySelectorAll('.card').length;
       isLoading = false; // 重置正在加载标记
       card_addCickEvent();
+      // setTimeout(card_addCickEvent(), 2000)
       /*  
       为新加载的卡片增加点击事件
       在feeds页面的话，引用的是addReadStatus.js中的card_addCickEvent()函数
@@ -74,6 +107,13 @@ function lazyLoad() {
       */
       // 
       loading.style.display = 'none';
+      // 重新勾选所有被选中的复选框
+      console.log('复选框列表')
+      console.log(checkedElements)
+      // 重新勾选所有被选中的复选框
+      checkedElements.forEach((checkbox) => {
+        checkbox.checked = true;
+      });
     }
   };
   xhr.send(data);
@@ -87,5 +127,6 @@ window.addEventListener('scroll', function () {
   if (scrollPosition >= pageHeight * 0.98 && !isSearching && !isLoading) {
     // 滚动到页面底部的 95% 时触发懒加载
     lazyLoad();
+
   }
 });
