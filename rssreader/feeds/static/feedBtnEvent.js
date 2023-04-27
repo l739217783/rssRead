@@ -2,12 +2,36 @@
 
 $(document).ready(function () {
     /* 下拉菜单选择作者后，将作者的值写入 input 中 */
-    $('.dropdown-item').click(function (event) {
-        // 阻止表单的自动提交,防止点击后页面刷新
+    $('#author-dropdown').on('click', 'a.dropdown-item', function (event) {
         event.preventDefault();
         var value = $(this).data('value');
         $('#author-input').val(value);
         $(this).closest('.input-group').find('.dropdown-toggle').text($(this).text());
+        authorValue = value;
+    });
+
+    /* 下拉菜单选择分类后，将分类的值写入 input 中 */
+    $('#category-dropdown').on('click', 'a.dropdown-item', function (event) {
+        event.preventDefault();
+        var value = $(this).data('value');
+        $('#category-input').val(value);
+        $(this).closest('.input-group').find('.dropdown-toggle').text($(this).text());
+
+        // 发送 AJAX 请求
+        $.ajax({
+            url: '/feeds/updateNameList',
+            type: 'POST',
+            data: { 'category': value },
+            dataType: 'json',
+            success: function (data) {
+                // 将返回的数据更新到作者下拉菜单中
+                var nameDropdown = $('#author-input').closest('.input-group').find('.dropdown-menu');
+                nameDropdown.empty(); // 先清空下拉菜单中的选项
+                $.each(data, function (index, name) {
+                    nameDropdown.append('<li><a class="dropdown-item" href="#" data-value="' + name + '">' + name + '</a></li>');
+                });
+            }
+        });
     });
 });
 
@@ -83,14 +107,24 @@ $("#sync").click(function () {
     $('.loading').css('display', 'flex');
     $(".loading").show();
 
+
+
     // 发送请求
     $.ajax({
         url: "/feeds/",
         type: "POST",
-        data: { upload: "true" },
+        data: { updateOpt: authorValue },
         success: function (data) {
             // 隐藏loading
             $(".loading").hide();
+
+            console.log(data);
+            // 解析服务器返回的 JSON 数据
+            var postInfo = data.post_info;
+
+            // 显示成功、错误和其它文章的数量信息
+            alert(`成功上传 ${postInfo.success} 篇文章，解析失败 ${postInfo.error} 篇，过滤掉 ${postInfo.other} 篇。`);
+
 
             // 刷新页面
             window.location.reload();

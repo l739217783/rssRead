@@ -85,6 +85,7 @@ def update_feed(request):
     if request.method == 'POST':
         feed_name = request.POST.get('feedName')
         feed_link = request.POST.get('feedLink')
+        feed_categor = request.POST.get('feedCategor')
         feed_description = request.POST.get('feedDescription')
 
         print(feed_name, feed_link, feed_description)  # 调试输出表单提交的数据
@@ -95,6 +96,7 @@ def update_feed(request):
         # 修改对应的 feed 数据
         data[feed_name]['href'] = feed_link
         data[feed_name]['description'] = feed_description
+        data[feed_name]['category'] = feed_categor
 
         # 保存数据
         with open('feeds/static/RSS_data.json', 'w', encoding='utf-8') as f:
@@ -112,27 +114,33 @@ def search(request):
         print(f'请求数据{request.POST}')
         keyword = request.POST.get('keyword', '')
         author = request.POST.get('author', '')
+        category = request.POST.get('category', '')
         read_state = request.POST.get('read_state', '')
         read_state = True if read_state == 'true' else False
-
+        print(f'分类：{category}')
         # print(type(keyword), type(author))
         # print(keyword, author)
 
-        if keyword.strip() == '' and author.strip() == '':
-            # 条件为空，重新加载首页
+        if keyword.strip() == '' and author.strip() == '' and category.strip() == '':
+            # 无条件查询
+            # articles = Article.objects.filter(read_state=read_state)
             return JsonResponse('load_HomePage', safe=False)
-        elif keyword and author:
-            # 筛选作者和关键字
-            articles = Article.objects.filter(
-                Q(title__contains=keyword) | Q(summary__contains=keyword), author=author, read_state=read_state)
-        elif keyword:
-            # 筛选关键字
-            articles = Article.objects.filter(
-                Q(title__contains=keyword) | Q(summary__contains=keyword), read_state=read_state)
         else:
-            # 筛选作者
-            articles = Article.objects.filter(
-                author=author, read_state=read_state)
+            # 构造多条件查询
+            query = Q(read_state=read_state)
+            if keyword.strip() != '':
+                query &= Q(title__contains=keyword) | Q(
+                    summary__contains=keyword)
+            if author.strip() != '':
+                query &= Q(author=author)
+            if category.strip() != '':
+                with open('feeds/static/RSS_data.json', 'r', encoding='utf-8') as f:
+                    feeds = json.load(f)
+                authors = [k for k, v in feeds.items() if v['category']
+                           == category]
+                query &= Q(author__in=authors)
+
+            articles = Article.objects.filter(query)
 
         result = []
         html_tag_pattern = re.compile(r'<[^>]+>')  # 去除HTML标签的正则
@@ -153,6 +161,20 @@ def search(request):
         return JsonResponse(result, safe=False)
 
 
+@csrf_exempt
+def update_nameList(request):
+    """
+    筛选按钮的分类更改时，异步请求，修改作者的下拉选项
+    """
+    category = request.POST.get('category', '')  # 获取前端发送过来的 category 参数
+
+    with open('feeds/static/RSS_data.json', 'r', encoding='utf-8') as f:
+        feeds = json.load(f)
+        authors = [k for k, v in feeds.items() if v['category'] == category]
+
+    return JsonResponse(authors, safe=False)
+
+
 def readed(request):
     """从数据库拉取展示已读文章页"""
     articles = Article.objects.filter(read_state=True)
@@ -165,19 +187,18 @@ def readed(request):
     return render(request, 'readed.html', {'articles': articles, 'name_list': name_list})
 
 
-def get_content(url, retry_times=3):
+def get_content(data, retry_times=3):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) " "Chrome/74.0.3729.131 Safari/537.36"
     }
-
     for i in range(retry_times):
         # 失败重复请求 3 次
         try:
-            r = requests.get(url, headers=headers)
+            r = requests.get(data['href'], headers=headers)
             r.raise_for_status()
             return r.text
         except RequestException as e:
-            print(f"Error fetching URL {url}: {e}")
+            print(f"Error fetching URL {data['href']}: {e}")
             time.sleep(5)
     return False
 
@@ -191,52 +212,84 @@ def feeds(request):
     # 用于模态窗口的作者选择(查询表author字段，列表形式返回，distinct()去重)
     name_list = Article.objects.values_list('author', flat=True).distinct()
 
-    if request.POST.get('upload'):
-        print('解析源,拉取数据')
-        # 读取 filter.json 文件并解析（过滤关键字）
+    if request.method == 'POST':
+        # 读取（过滤关键字）
         with open('feeds/static/filter_data.json', 'r', encoding='utf-8') as f:
             filter_data = json.load(f)
 
-        # 读取 RSS_data.json 文件并解析（RSS源）
+        # 决定当个更新还是全部更新
+        # 读取 （RSS源）
+        update_opt = request.POST.get('updateOpt', '')
+        print(f'updateOpt:{update_opt}')
+
         with open('feeds/static/RSS_data.json', 'r', encoding='utf-8') as f:
-            rss_data = json.load(f)
 
-        # 使用 feedparser 获取 RSS 订阅源中的文章
-        articles = []
+            if update_opt == '':
+                # 全部更新
+                print('全部更新')
+                rss_data = json.load(f)
+            else:
+                print(f'单独更新:{update_opt}')
+                rss_data = {}
+                for author, info in json.load(f).items():
+                    if update_opt == author:
+                        rss_data[author] = info
+                # print(rss_data)
 
-        for name, url in rss_data.items():
-            content = get_content(url)
+        # 用于统计请求成功、失败、其他情况的次数
+        success_num = 0    # 成功请求统计
+        error_num = 0  # 失败请求统计
+        other_num = 0  # 其他情况统计（）
+
+        for key, data in rss_data.items():
+            print(f'解析源：{key}')
+
+            content = get_content(data)
             if content == False:
-                print(f'{name},请求失败')
+                print(f'{key},请求失败')
                 continue
+
             feed_data = feedparser.parse(content)
             for entry_data in feed_data.entries:
                 # 检查标题和描述是否匹配过滤器中的关键字，如果匹配则跳过此文章
                 if any(re.search(keyword, entry_data.title, re.IGNORECASE) or re.search(keyword, entry_data.summary, re.IGNORECASE) for keyword in filter_data['filter_title'] + filter_data['filter_summary']):  # noqa:E501
                     print(f'过滤：{entry_data.title}')
+                    other_num += 1
                     continue
 
                 try:
                     # 检测是否存在，不存在添加
                     article = Article.objects.get(title=entry_data.title,
                                                   link=entry_data.link)
+
                 except Article.DoesNotExist:
-                    # 去除HTML标签
-                    summary = html_tag_pattern.sub('', entry_data.summary)
 
-                    article = Article.objects.create(
-                        title=entry_data.title,
-                        link=entry_data.link,
-                        summary=summary,
-                        author=name,
-                        pub_date=time.strftime(
-                            "%Y-%m-%d", entry_data.published_parsed)
-                    )
-                if not article.read_state:
-                    # 检测是否阅读过，没阅读才展示
-                    articles.append(article)
+                    try:
+                        # 去除HTML标签
+                        summary = html_tag_pattern.sub('', entry_data.summary)
 
-        return render(request, 'feeds.html', {'articles': articles, "name_list": name_list})
+                        article = Article.objects.create(
+                            title=entry_data.title,
+                            link=entry_data.link,
+                            summary=summary,
+                            author=key,
+                            pub_date=time.strftime(
+                                "%Y-%m-%d", entry_data.published_parsed)
+                        )
+                        success_num += 1
+
+                    except AttributeError:
+                        # 没有pub_date的情况（或者其他特殊情况）
+                        print(f'文章:{entry_data.title},创建失败')
+                        error_num += 1
+                        continue
+
+        # 请求的话，返回请求结果
+        return JsonResponse({'post_info': {
+            'success': success_num,
+            'error': error_num,
+            'other': other_num
+        }})
     else:
         print('数据库读取')
         # 从数据库中返回数据
@@ -246,7 +299,16 @@ def feeds(request):
         for article in articles:
             article.summary = html_tag_pattern.sub('', article.summary)
 
-        return render(request, 'feeds.html', {'articles': articles, "name_list": name_list})
+        # category_list = []
+        category_list = set()
+        # 读取rss_data.json中的类别信息，用于模态窗口的类别选择
+        with open(r'D:\systemLibrary\Desktop\RSS\rssreader\feeds\static\RSS_data.json', 'r', encoding='utf-8') as f:
+            rss_data = json.load(f)
+
+            for key, data in rss_data.items():
+                category_list.add(data['category'])
+
+        return render(request, 'feeds.html', {'articles': articles, "name_list": name_list, "category_list": category_list})
 
 
 def filter(request):

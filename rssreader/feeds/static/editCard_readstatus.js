@@ -1,7 +1,7 @@
 // 为卡片绑定点击事件
 
 function card_addCickEvent() {
-    /* 卡片增加点击事件， 点击后变白，请求恢复卡片为未*/
+    /* 卡片增加点击事件， 点击后变白，请求恢复卡片为未读*/
     const cards = document.querySelectorAll('.card-link');
     cards.forEach(card => {
         card.addEventListener('mousedown', function (event) {
@@ -17,16 +17,22 @@ function card_addCickEvent() {
     });
 }
 
+
 function handleLinkClick(event) {
     /* 阻止链接的默认行为 */
     event.preventDefault();
 }
 
-// 监听所有链接
-const links = document.querySelectorAll('a.card-link');
-links.forEach(link => {
-    link.addEventListener('click', handleLinkClick);
-});
+function allClickDisble() {
+    /* 禁用所有链接的默认行为 */
+    const links = document.querySelectorAll('a.card-link');
+    links.forEach(link => {
+        // console.log('禁用链接默认行为');
+        link.addEventListener('click', handleLinkClick);
+    });
+}
+
+
 
 function markCardAsRead(article_id, status) {
     /* 请求修改卡片阅读状态，修改为未读状态 */
@@ -48,4 +54,5 @@ function markCardAsRead(article_id, status) {
 
 $(document).ready(function () {
     card_addCickEvent() // 所有卡片增加点击事件
+    allClickDisble() // 禁用所有链接的默认行为
 });

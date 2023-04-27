@@ -25,7 +25,7 @@
     margin: 4px;
     border-radius: 10px;
     border-color: rgba(13, 110, 253, 0.7);
-    }
+  }
 </style>
 
 <link rel="stylesheet" type="text/css" href="{% static 'loading.css'%}">
@@ -91,12 +91,25 @@
             <input type="text" class="form-control" id="keyword-input">
           </div>
           <div class="input-group mb-3">
-            <label for="author" class="input-group-text">Author:</label>
+            <label for="category" class="input-group-text" style="width: 25%;">Category:</label>
+            <button class="btn btn-outline-secondary dropdown-toggle flex-grow-1" type="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Select Category
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="category-dropdown" style="max-width: 75%;" id="category-dropdown"> 
+              {% for category in category_list %}
+              <li><a class="dropdown-item" href="#" data-value="{{ category }}">{{ category }}</a></li>
+              {% endfor %}
+            </ul>
+            <input type="hidden" name="category" id="category-input">
+          </div>
+          <div class="input-group mb-3">
+            <label for="author" class="input-group-text" style="width: 25%;">Author:</label>
             <button class="btn btn-outline-secondary dropdown-toggle flex-grow-1" type="button"
               data-bs-toggle="dropdown" aria-expanded="false">
               Select Author
             </button>
-            <ul class="dropdown-menu" aria-labelledby="author-dropdown">
+            <ul class="dropdown-menu" aria-labelledby="author-dropdown" style="max-width: 75%;" id="author-dropdown">
               {% for name in name_list %}
               <li><a class="dropdown-item" href="#" data-value="{{ name }}">{{ name }}</a></li>
               {% endfor %}
@@ -109,7 +122,6 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary" id="search-btn">Search</button>
       </div>
-
     </div>
   </div>
 </div>
@@ -151,6 +163,8 @@
 
   var isSearching = false; // 搜索状态
   var isEditing = false; // 编辑状态
+  var authorValue = ""; // 作者值(用于检测是全部更新，还是单个更新)
+
   // 等待文档完全加载后执行
   window.addEventListener('load', function () {
     // 解决刷新问题

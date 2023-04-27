@@ -154,20 +154,27 @@ function refreshRss() {
         button.addEventListener('click', function (event) {
             const feedTitleInput = document.querySelector('#feedTitleInput');
             const feedLinkInput = document.querySelector('#feedLinkInput');
+            const feedCategoryInput = document.querySelector('#feedCategoryInput');
             const feedDescriptionInput = document.querySelector('#feedDescriptionInput');
-            const { feedTitle, feedLink, feedDescription } = event.currentTarget.dataset;
+            const { feedTitle, feedLink, feedDescription, feedCategory } = event.currentTarget.dataset;
             feedTitleInput.value = feedTitle;
             feedLinkInput.value = feedLink;
             feedDescriptionInput.value = feedDescription;
+            feedCategoryInput.value = feedCategory;
+
         });
     });
 
     // 模态窗保存按钮点击事件
     document.querySelector('#saveChangesBtn').addEventListener('click', function () {
+        // 定位输入框
         const feedTitleInput = document.querySelector('#feedTitleInput');
         const feedLinkInput = document.querySelector('#feedLinkInput');
         const feedDescriptionInput = document.querySelector('#feedDescriptionInput');
+        const feedCategorInput = document.querySelector('#feedCategoryInput');
+        // 获取输入框中的值
         const feedTitle = feedTitleInput.value;
+        const feedCategor = feedCategorInput.value;
         const feedLink = feedLinkInput.value;
         const feedDescription = feedDescriptionInput.value;
         const feedId = document.querySelector('#editModal').dataset.feedId;
@@ -179,6 +186,7 @@ function refreshRss() {
                 feedId: feedId,
                 feedName: feedTitle,
                 feedLink: feedLink,
+                feedCategor: feedCategor,
                 feedDescription: feedDescription,
                 csrfmiddlewaretoken: csrf_token,
             },

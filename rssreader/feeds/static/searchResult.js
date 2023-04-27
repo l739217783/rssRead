@@ -4,9 +4,31 @@ $(document).ready(function () {
         var keyword = $("#keyword-input").val();
         var author = $("#author-input").val();
 
+        // 可能处于已读界面，没有分类这个选项
+        var category = $("#category-input").val() ? $("#category-input").val() : '';
+        if (category) {
+            // 清空 category 选项并强制清除下拉框的选中状态
+            $("#category-input").val("");
+        }
         // 清空 author 选项并强制清除下拉框的选中状态
         $("#author-input").val("");
-        $(".dropdown-toggle").text("Select Author"); // 恢复按钮上的文本
+
+
+        // 还原筛选器按钮上的文本
+        // 可能处于已读界面，没有分类这个选项（进行检测，选择适合的情况）
+        if (document.getElementsByClassName("dropdown-toggle").length > 1) {
+            // 恢复分类按钮上的文本
+            document.getElementsByClassName("dropdown-toggle")[0].innerText = "Select Category";
+
+            // 恢复作者按钮上的文本
+            document.getElementsByClassName("dropdown-toggle")[1].innerText = "Select Author";
+        } else {
+            // 恢复作者按钮上的文本
+            document.getElementsByClassName("dropdown-toggle")[0].innerText = "Select Author";
+        }
+
+
+
 
         isSearching = true;
         // 给后端传输参数，决定返回已读文章还是未读文章
@@ -19,6 +41,7 @@ $(document).ready(function () {
             data: {
                 keyword: keyword,
                 author: author,
+                category: category,
                 read_state: read_state
             },
             dataType: "json",
@@ -61,6 +84,10 @@ $(document).ready(function () {
                 }
                 // 重新绑定卡片点击事件
                 card_addCickEvent();
+                if (read_state) {
+                    // 如果是已读界面，搜索情况下禁用所有链接默认行为
+                    allClickDisble();
+                }
             },
             error: function (xhr, status, error) {
                 console.log("An error occurred while searching");

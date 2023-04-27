@@ -3,7 +3,7 @@ let loadedCount = document.querySelectorAll('.card').length; // 卡片组中已�
 const cardGroup = document.getElementById('cardGroup'); // 卡片组
 const loading = document.querySelector('.loading'); // 加载动画
 const addCheckboxBtn = document.getElementById('addCheckboxBtn'); // 编辑按钮
-
+let checkbox_txt = undefined;
 
 // const authorValue = document.getElementById('author-input').innerText;
 const totalArticles = parseInt(document.getElementById('total-articles').getAttribute('data-total-articles'));
@@ -70,11 +70,15 @@ function lazyLoad() {
       const articles = JSON.parse(xhr.responseText);
       let cardHtml = '';
       let lastId = checkbox.length + 1;
+      console.log('开始', lastId)
       articles.forEach(article => {
 
-        // 如果是编辑状态，则在卡片中添加复选框
-        const checkbox_txt = addCheckboxBtn.classList.contains('active') ? `<input type="checkbox" id="${lastId}" class="form-check-input position-absolute top-0 end-0" value="on">` : '';
-
+        // 如果是编辑状态，则在卡片中添加复选框(暂时移除input的id="${lastId}" )
+        if (addCheckboxBtn && addCheckboxBtn.classList.contains('active')) {
+          checkbox_txt = `<input type="checkbox" class="form-check-input position-absolute top-0 end-0" value="on">`;
+        } else {
+          checkbox_txt = '';
+        }
         cardHtml += `
           <div class="col col-sm-6 col-lg-3 mb-4">
             <div class="${card_class}" data-article-id="${article.id}">
@@ -91,7 +95,6 @@ function lazyLoad() {
             </div>
           </div>
         `;
-        lastId++;
       });
       cardGroup.innerHTML += cardHtml;
       loadedCount = document.querySelectorAll('.card').length;
@@ -108,8 +111,8 @@ function lazyLoad() {
       // 
       loading.style.display = 'none';
       // 重新勾选所有被选中的复选框
-      console.log('复选框列表')
-      console.log(checkedElements)
+      // console.log('复选框列表')
+      // console.log(checkedElements)
       // 重新勾选所有被选中的复选框
       checkedElements.forEach((checkbox) => {
         checkbox.checked = true;

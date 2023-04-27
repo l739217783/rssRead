@@ -1,190 +1,292 @@
 {
-  "阮一峰的网络日志": {
-    "description": "阮一峰的个人网站",
-    "href": "https://api.feeddd.org/feeds/613193341269c358aa0dd655"
-  },
-  "奔跑中的奶酪": {
-    "description": "1",
-    "href": "https://www.runningcheese.com/feed"
-  },
-  "友人C": {
-    "description": "1",
-    "href": "https://www.ihewro.com/feed/"
-  },
-  "Ted Wild": {
-    "description": "一个讲心态的Blog",
-    "href": "https://tedwild.com/feed/"
-  },
-  "万事屋的阿虚": {
-    "description": "分享优秀、实用、有趣的软件和网络资源",
-    "href": "https://www.axutongxue.top/feeds/posts/default?alt=rss"
-  },
-  "效率火箭": {
-    "description": "讲效率、软件的Blog",
-    "href": "http://xlrocket.com/feed/"
-  },
-  "枫音应用": {
-    "description": "推荐软件的网页",
-    "href": "https://www.fy6b.com/rss"
-  },
-  "小众软件": {
-    "description": "分享优秀、实用、有趣的软件和网络资源",
-    "href": "https://feed.appinn.com"
-  },
-  "国家应急广播": {
-    "description": "科普应急逃生知识",
-    "href": "https://api.feeddd.org/feeds/62677d17a4ca6e10e375ebdc"
-  },
-  "曹将": {
-    "description": "职场知识分享",
-    "href": "https://api.feeddd.org/feeds/61b9af0ddca58a380c2e6059"
-  },
-  "L先生说": {
-    "description": "个人成长知识分享",
-    "href": "https://api.feeddd.org/feeds/614016631269c358aa10f5e3"
-  },
-  "小猫倩倩": {
-    "description": "偏向于讲心态的博主",
-    "href": "https://api.feeddd.org/feeds/62677d18a4ca6e10e375ec26"
-  },
-  "也谈钱": {
-    "description": "偏向于分享效率、投资、理财的 Blog",
-    "href": "https://api.feeddd.org/feeds/61237b0051e2511a827a2ced"
-  },
-  "每日优质搜罗": {
-    "description": "分享软件的博主",
-    "href": "https://api.feeddd.org/feeds/61fe7f60dca58a380c57fcf8"
-  },
-  "猿料": {
-    "description": "插件分享",
-    "href": "https://api.feeddd.org/feeds/61514f801269c358aa13cc83"
-  },
-  "flomo浮墨笔记": {
-    "description": "知识体系知识分享",
-    "href": "https://api.feeddd.org/feeds/61d86458dca58a380c3d5e46"
-  },
-  "WeAlert": {
-    "description": "rss订阅通知",
-    "href": "https://api.feeddd.org/feeds/6150f3851269c358aa13a4cb"
-  },
-  "S叔Spenser": {
-    "description": "1",
-    "href": "https://api.feeddd.org/feeds/626101d7a4ca6e10e36f74fb"
-  },
-  "生涯研习社": {
-    "description": "职场相关知识分享",
-    "href": "https://api.feeddd.org/feeds/62677d18a4ca6e10e375ebfc"
-  },
-  "人物": {
-    "description": "真实故事",
-    "href": "https://api.feeddd.org/feeds/6123cf6051e2511a827a3720"
-  },
-  "知乎日报": {
-    "description": "随机知识分享",
-    "href": "https://api.feeddd.org/feeds/6131e1431269c358aa0e2049"
-  },
-  "自由会客厅": {
-    "description": "自由职业讯息",
-    "href": "https://api.feeddd.org/feeds/637a9a2ae11908407792c370"
-  },
-  "深圳本地宝": {
-    "description": "深圳本地知识",
-    "href": "https://api.feeddd.org/feeds/6131e1421269c358aa0e1b5b"
-  },
-  "老爸评测": {
-    "description": "评测产品",
-    "href": "https://api.feeddd.org/feeds/6135d59f1269c358aa0f2f6b"
-  },
-  "罗辑思维": {
-    "description": "1",
-    "href": "https://api.feeddd.org/feeds/6135d59f1269c358aa0f2feb"
-  },
-  "深圳医保": {
-    "description": "1",
-    "href": "https://api.feeddd.org/feeds/6191e60eb9a7e049c39112f8"
-  },
-  "深圳卫健委": {
-    "description": "1",
-    "href": "https://api.feeddd.org/feeds/612af128221f954f5e1146a4"
-  },
-  "深圳人社": {
-    "description": "社保知识分享",
-    "href": "https://api.feeddd.org/feeds/6191e60db9a7e049c3911238"
-  },
-  "广东省教育考试院": {
-    "description": "1",
-    "href": "https://api.feeddd.org/feeds/61e2b1d3dca58a380c4384db"
-  },
-  "阿猫读书": {
-    "description": "个人成长知识分享",
-    "href": "https://api.feeddd.org/feeds/6138b6281269c358aa0fdfcd"
-  },
-  "人人都是产品经理": {
-    "description": "产品经理的集中营",
-    "href": "https://www.woshipm.com/feed"
-  },
-  "深圳交警": {
-    "description": "交通知识分享",
-    "href": "https://api.feeddd.org/feeds/6191e60db9a7e049c3911200"
-  },
-  "异次元软件世界": {
-    "description": "软件分享网页",
-    "href": "https://feed.iplaysoft.com/"
-  },
-  "腾讯医典": {
-    "description": "医学知识科普",
-    "href": "https://api.feeddd.org/feeds/613ee9911269c358aa10c6bf"
-  },
-  "丁香医生": {
-    "description": "医学知识科普",
-    "href": "https://api.feeddd.org/feeds/611f0dcc8fae751e236420c0"
-  },
-  "夜法之书": {
-    "href": "https://blog.17lai.site/categories/hexo/atom.xml",
-    "description": "对Hexo博客方面有比较详细的教程"
-  },
-  "又见苍岚": {
-    "href": "https://www.zywvvd.com/?feed=rss2",
-    "description": "同Fluid主题，有大量相关教程"
-  },
-  "千古壹号的博客": {
-    "href": "https://www.qianguyihao.com/?feed=rss2",
-    "description": "非常硬核的博客，有大量有价值的文章"
-  },
-  "坏蛋的博客": {
-    "href": "https://www.ibadboy.net/feed",
-    "description": "对于心态、视野方面有点小帮助"
-  },
-  "战国册": {
-    "href": "https://zerg.cc/atom.xml",
-    "description": "世界观方面具有指导意义"
-  },
-  "EASON+": {
-    "href": "https://www.easonx.cn/atom.xml",
-    "description": "讲佛法方面的一个博主、对心态可能有些帮助"
-  },
-  "王政乔": {
-    "href": "https://www.zhengqiao.wang/atom.xml",
-    "description": "有些知识点对个人有帮助"
-  },
-  "运维咖啡吧": {
-    "href": "https://blog.ops-coffee.cn/feed.xml",
-    "description": "软件、生活、Python、Django"
-  },
-  "Frost's Blog": {
-    "href": "https://frostming.com/feed.xml",
-    "description": "Python相关"
-  },
-  "陈YFの博客(￣▽￣)\"  ": {
-    "href": "https://blog.cyfan.top/atom.xml",
-    "description": "同主题的博主，有些文章有帮助"
-  },
-  "liuliのsite": {
-    "href": "https://back2me.cn/feed/",
-    "description": "会介绍些实用的软件使用分享"
-  },
-  "及时嗨": {
-    "href": "https://gishai.top/?feed=rss",
-    "description": "Fluid魔改大佬"
-  }
+    "阮一峰的网络日志": {
+        "description": "阮一峰的个人网站",
+        "href": "https://api.feeddd.org/feeds/613193341269c358aa0dd655",
+        "category": "博客"
+    },
+    "奔跑中的奶酪": {
+        "description": "1",
+        "href": "https://www.runningcheese.com/feed",
+        "category": "博客"
+    },
+    "友人C": {
+        "description": "1",
+        "href": "https://www.ihewro.com/feed/",
+        "category": "博客"
+    },
+    "Ted Wild": {
+        "description": "一个讲心态的Blog",
+        "href": "https://tedwild.com/feed/",
+        "category": "博客"
+    },
+    "万事屋的阿虚": {
+        "description": "分享优秀、实用、有趣的软件和网络资源",
+        "href": "https://www.axutongxue.top/feeds/posts/default?alt=rss",
+        "category": "软件"
+    },
+    "效率火箭": {
+        "description": "讲效率、软件的Blog",
+        "href": "http://xlrocket.com/feed/",
+        "category": "博客"
+    },
+    "枫音应用": {
+        "description": "推荐软件的网页",
+        "href": "https://www.fy6b.com/rss",
+        "category": "软件"
+    },
+    "小众软件": {
+        "description": "分享优秀、实用、有趣的软件和网络资源",
+        "href": "https://feed.appinn.com",
+        "category": "软件"
+    },
+    "国家应急广播": {
+        "description": "科普应急逃生知识",
+        "href": "https://api.feeddd.org/feeds/62677d17a4ca6e10e375ebdc",
+        "category": "博客"
+    },
+    "曹将": {
+        "description": "职场知识分享",
+        "href": "https://api.feeddd.org/feeds/61b9af0ddca58a380c2e6059",
+        "category": "工作"
+    },
+    "L先生说": {
+        "description": "个人成长知识分享",
+        "href": "https://api.feeddd.org/feeds/614016631269c358aa10f5e3",
+        "category": "个人成长"
+    },
+    "小猫倩倩": {
+        "description": "偏向于讲心态的博主",
+        "href": "https://api.feeddd.org/feeds/62677d18a4ca6e10e375ec26",
+        "category": "个人成长"
+    },
+    "也谈钱": {
+        "description": "偏向于分享效率、投资、理财的 Blog",
+        "href": "https://api.feeddd.org/feeds/61237b0051e2511a827a2ced",
+        "category": "博客"
+    },
+    "每日优质搜罗": {
+        "description": "分享软件的博主",
+        "href": "https://api.feeddd.org/feeds/61fe7f60dca58a380c57fcf8",
+        "category": "软件"
+    },
+    "猿料": {
+        "description": "插件分享",
+        "href": "https://api.feeddd.org/feeds/61514f801269c358aa13cc83",
+        "category": "软件"
+    },
+    "flomo浮墨笔记": {
+        "description": "知识体系知识分享",
+        "href": "https://api.feeddd.org/feeds/61d86458dca58a380c3d5e46",
+        "category": "个人成长"
+    },
+    "WeAlert": {
+        "description": "rss订阅通知",
+        "href": "https://api.feeddd.org/feeds/6150f3851269c358aa13a4cb",
+        "category": "软件"
+    },
+    "S叔Spenser": {
+        "description": "1",
+        "href": "https://api.feeddd.org/feeds/626101d7a4ca6e10e36f74fb",
+        "category": "博客"
+    },
+    "生涯研习社": {
+        "description": "职场相关知识分享",
+        "href": "https://api.feeddd.org/feeds/62677d18a4ca6e10e375ebfc",
+        "category": "博客"
+    },
+    "人物": {
+        "description": "真实故事",
+        "href": "https://api.feeddd.org/feeds/6123cf6051e2511a827a3720",
+        "category": "社会"
+    },
+    "知乎日报": {
+        "description": "随机知识分享",
+        "href": "https://api.feeddd.org/feeds/6131e1431269c358aa0e2049",
+        "category": "博客"
+    },
+    "自由会客厅": {
+        "description": "自由职业讯息",
+        "href": "https://api.feeddd.org/feeds/637a9a2ae11908407792c370",
+        "category": "博客"
+    },
+    "深圳本地宝": {
+        "description": "深圳本地知识",
+        "href": "https://api.feeddd.org/feeds/6131e1421269c358aa0e1b5b",
+        "category": "资讯"
+    },
+    "老爸评测": {
+        "description": "评测产品",
+        "href": "https://api.feeddd.org/feeds/6135d59f1269c358aa0f2f6b",
+        "category": "生活"
+    },
+    "罗辑思维": {
+        "description": "1",
+        "href": "https://api.feeddd.org/feeds/6135d59f1269c358aa0f2feb",
+        "category": "个人成长"
+    },
+    "深圳医保": {
+        "description": "1",
+        "href": "https://api.feeddd.org/feeds/6191e60eb9a7e049c39112f8",
+        "category": "生活"
+    },
+    "深圳卫健委": {
+        "description": "1",
+        "href": "https://api.feeddd.org/feeds/612af128221f954f5e1146a4",
+        "category": "生活"
+    },
+    "深圳人社": {
+        "description": "社保知识分享",
+        "href": "https://api.feeddd.org/feeds/6191e60db9a7e049c3911238",
+        "category": "博客"
+    },
+    "阿猫读书": {
+        "description": "个人成长知识分享",
+        "href": "https://api.feeddd.org/feeds/6138b6281269c358aa0fdfcd",
+        "category": "个人成长"
+    },
+    "人人都是产品经理": {
+        "description": "产品经理的集中营",
+        "href": "https://www.woshipm.com/feed",
+        "category": "博客"
+    },
+    "深圳交警": {
+        "description": "交通知识分享",
+        "href": "https://api.feeddd.org/feeds/6191e60db9a7e049c3911200",
+        "category": "生活"
+    },
+    "异次元软件世界": {
+        "description": "软件分享网页",
+        "href": "https://feed.iplaysoft.com/",
+        "category": "软件"
+    },
+    "腾讯医典": {
+        "description": "医学知识科普",
+        "href": "https://api.feeddd.org/feeds/613ee9911269c358aa10c6bf",
+        "category": "生活"
+    },
+    "丁香医生": {
+        "description": "医学知识科普",
+        "href": "https://api.feeddd.org/feeds/611f0dcc8fae751e236420c0",
+        "category": "博客"
+    },
+    "夜法之书": {
+        "href": "https://blog.17lai.site/categories/hexo/atom.xml",
+        "category": "博客",
+        "description": "对Hexo博客方面有比较详细的教程"
+    },
+    "又见苍岚": {
+        "href": "https://www.zywvvd.com/?feed=rss2",
+        "category": "博客",
+        "description": "同Fluid主题，有大量相关教程"
+    },
+    "千古壹号的博客": {
+        "href": "https://www.qianguyihao.com/?feed=rss2",
+        "category": "博客",
+        "description": "非常硬核的博客，有大量有价值的文章"
+    },
+    "坏蛋的博客": {
+        "href": "https://www.ibadboy.net/feed",
+        "category": "博客",
+        "description": "对于心态、视野方面有点小帮助"
+    },
+    "战国册": {
+        "href": "https://zerg.cc/atom.xml",
+        "category": "博客",
+        "description": "世界观方面具有指导意义"
+    },
+    "EASON+": {
+        "href": "https://www.easonx.cn/atom.xml",
+        "category": "博客",
+        "description": "讲佛法方面的一个博主、对心态可能有些帮助"
+    },
+    "王政乔": {
+        "href": "https://www.zhengqiao.wang/atom.xml",
+        "category": "博客",
+        "description": "有些知识点对个人有帮助"
+    },
+    "运维咖啡吧": {
+        "href": "https://blog.ops-coffee.cn/feed.xml",
+        "category": "博客",
+        "description": "软件、生活、Python、Django"
+    },
+    "Frost's Blog": {
+        "href": "https://frostming.com/feed.xml",
+        "category": "博客",
+        "description": "Python相关"
+    },
+    "陈YFの博客(￣▽￣)\"  ": {
+        "href": "https://blog.cyfan.top/atom.xml",
+        "category": "博客",
+        "description": "同主题的博主，有些文章有帮助"
+    },
+    "liuliのsite": {
+        "href": "https://back2me.cn/feed/",
+        "category": "博客",
+        "description": "会介绍些实用的软件使用分享"
+    },
+    "及时嗨": {
+        "href": "https://gishai.top/?feed=rss",
+        "category": "博客",
+        "description": "Fluid魔改大佬"
+    },
+    "文武之间": {
+        "href": "https://lianwenbin.cn/feed",
+        "category": "博客",
+        "description": "思想、心态方面文章不错"
+    },
+    "松易涅的写作分享站": {
+        "href": "https://songyinie.com/feed/",
+        "category": "博客",
+        "description": "社会方面的看点不错"
+    },
+    "少数派": {
+        "href": "https://sspai.com/feed",
+        "category": "效率",
+        "description": "高效率、软件"
+    },
+    "YYwr's Blog": {
+        "href": "https://www.yywr.net/",
+        "category": "博客",
+        "description": "有点价值的博客、效率 、生产力、进化"
+    },
+    "Blog by Eacls": {
+        "href": "https://www.eacls.top/",
+        "category": "博客",
+        "description": "不错的博客、社会方面、思考、博客美化相关"
+    },
+    "SaraKale's blog": {
+        "href": "https://www.sarakale.top/blog/",
+        "category": "博客",
+        "description": "不错的博客，有些涉及建站的教程"
+    },
+    "清顺": {
+        "href": "https://www.sarakale.top/blog/",
+        "category": "博客",
+        "description": "LearnData-开源笔记开发者，讲工具、软件比较有深度，也有推荐一些比较好用的软件"
+    },
+    "翠翠": {
+        "href": "https://idealclover.top/feed/category/blog/",
+        "category": "博客",
+        "description": "不错的博客"
+    },
+    "tomorrow505": {
+        "href": "https://tomorrow505.xyz/?feed=rss2",
+        "category": "博客",
+        "description": "些许Fluid主题修改的方案"
+    },
+    "谢乾坤 | Kingname": {
+        "href": "https://www.kingname.info/?feed=rss2",
+        "category": "博客",
+        "description": "Python笔记不错"
+    },
+    "guyskk": {
+        "href": "https://blog.guyskk.com/feed.xml",
+        "category": "博客",
+        "description": "自宅创业前辈"
+    },
+    "初之音": {
+        "href": "https://www.himiku.com/?feed=rss2",
+        "category": "博客",
+        "description": "价值观比较契合、原神、追番"
+    }
 }

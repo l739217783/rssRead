@@ -13,7 +13,6 @@ function card_addCickEvent() {
         const elem = event.target.closest('.form-check-input');
 
         // 根据复选框状态执行相应操作
-
         if (!elem) {  // 获取点击的元素，判断是否为复选框(卡片区域是null,复选为返回input)
             const checkbox = event.currentTarget.querySelector('.form-check-input');
             if (checkbox) {  // 检测是否有复选框
@@ -24,6 +23,7 @@ function card_addCickEvent() {
                 // 没有复选框，跳转链接，标记已读
                 const article_id = event.currentTarget.dataset.articleId;
                 markCardAsRead(article_id, true);
+                this.closest('.card').classList.add('card-gray');
             }
         }
     }
@@ -39,7 +39,7 @@ function markCardAsRead(article_id, status) {
         data: { csrfmiddlewaretoken: "{{ csrf_token }}", status: status },
         success: function (data) {
             console.log("Article " + article_id + " marked as read");
-            location.reload();
+            // location.reload();
         },
         error: function (xhr, status, error) {
             console.log("An error occurred while marking the article as read");

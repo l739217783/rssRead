@@ -24,6 +24,7 @@ from .views import api_articles
 from .views import readed
 from .views import update_feed
 from .views import filter_update
+from .views import update_nameList
 
 app_name = 'feeds'
 urlpatterns = [
@@ -41,4 +42,5 @@ urlpatterns = [
     path('filter-delete/', filter_delete, name='filter-delete'),  # 删除过滤器
     path('api/articles/', api_articles, name='api_articles'),  # 获取文章列表(懒加载使用)
     path('readed/', readed, name='readed'),  # 已读文章
+    path('updateNameList', update_nameList)  # 更新作者列表使用
 ]

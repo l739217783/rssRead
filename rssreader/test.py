@@ -1,8 +1,7 @@
+
 import json
 
-with open(r'D:\systemLibrary\Desktop\RSS\rssreader\feeds\static\RSS_data.json', 'r', encoding='utf-8') as f:
-    data = json.load(f)
 
-print(type(data))
-for i in data:
-    print(i, type(i))
+with open(r'D:\systemLibrary\Desktop\RSS\rssreader\feeds\static\RSS_data.json', 'r', encoding='utf-8') as f:
+    for author, info in json.load(f).items():
+        print(author, info)
