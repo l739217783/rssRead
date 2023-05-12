@@ -1,5 +1,7 @@
 // 筛选器
 $(document).ready(function () {
+
+    // 搜索按钮事件
     $("#search-btn").click(function () {
         var keyword = $("#keyword-input").val();
         var author = $("#author-input").val();
@@ -109,4 +111,21 @@ $(document).ready(function () {
     });
     // 移除懒加载事件
     window.removeEventListener('scroll', lazyLoad);
+
+
 });
+
+
+// 模态窗clear按钮事件
+$("#clear-btn").click(function () {
+    // 清空相关属性的值
+    $("#keyword-input").val("");
+    $("#author-input").val("");
+    authorValue = '';
+    categoryValue = '';
+
+    // 恢复按钮上的文本
+    document.getElementsByClassName("dropdown-toggle")[0].innerText = "Select Category"; // 分类
+    document.getElementsByClassName("dropdown-toggle")[1].innerText = "Select Author"; // 作者
+
+})

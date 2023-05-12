@@ -72,6 +72,7 @@ function addRss() {
         const title = addFeedTitleInput.value;
         const link = addFeedLinkInput.value;
         const description = addFeedDescriptionInput.value;
+        const category = addFeedCategoryInput.value;
         $.ajax({
             url: addFeedUrl,
             method: "POST",
@@ -79,6 +80,7 @@ function addRss() {
                 feedName: title,
                 feedLink: link,
                 feedDescription: description,
+                feedCategory: category,
                 csrfmiddlewaretoken: csrf_token,
             },
             success: function (response) {
@@ -121,6 +123,41 @@ function deleteRss() {
             const name = card.querySelector(".card-title").textContent;
             names.push(name);
         });
+        // 发送删除请求
+        $.ajax({
+            url: delFeedUrl,
+            method: "POST",
+            data: {
+                names: names,
+                csrfmiddlewaretoken: csrf_token,
+            },
+            traditional: true,
+            success: function (response) {
+                // 当 AJAX 请求成功时执行
+                if (response.success) {
+                    // 重新加载页面
+                    location.reload();
+                } else {
+                    // 显示错误信息
+                    alert(response.message);
+                }
+            },
+            error: function () {
+                // 当 AJAX 请求出错时执行
+                alert("删除失败.");
+            },
+        });
+    });
+}
+
+function carDeleteBtn() {
+    // 编辑模态窗删除按钮添加事件
+    const deleteBtn = document.getElementById("carDeleteBtn");
+    deleteBtn.addEventListener("click", function () {
+
+        // 获取需要删除的名称
+        const names = [document.querySelector('#feedTitleInput').value];
+
         // 发送删除请求
         $.ajax({
             url: delFeedUrl,

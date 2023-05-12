@@ -147,6 +147,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-danger" id="carDeleteBtn">删除</button>
         <button type="button" class="btn btn-primary" id="saveChangesBtn">保存</button>
       </div>
     </div>
@@ -205,6 +206,7 @@
     addRss();
     deleteRss();
     refreshRss();
+    carDeleteBtn();
 
     // 重置卡片主体(a)的点击事件
     // 有复选框则选中/取消选中，否则打开链接

@@ -36,13 +36,19 @@ def add_feed(request):
         name = request.POST.get('feedName')
         link = request.POST.get('feedLink')
         description = request.POST.get('feedDescription')
+        category = request.POST.get('feedCategory')
+
         if name and link:
             # 打开 RSS_data.json 文件
             data_file = 'feeds/static/RSS_data.json'
             with open(data_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             # 添加新的 RSS 源到数据中
-            data[name] = {'href': link, 'description': description}
+            data[name] = {
+                'href': link,
+                'category': category,
+                'description': description
+            }
             # 保存到文件
             with open(data_file, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
@@ -68,7 +74,7 @@ def delete_feed(request):
             print(f'源不存在:{name}')
 
         # 删除数据库中的源
-        # Article.objects.filter(author=name).delete()
+        Article.objects.filter(author=name).delete()
 
     return JsonResponse({'success': True})
 
@@ -129,18 +135,23 @@ def search(request):
             # 构造多条件查询
             query = Q(read_state=read_state)
             if keyword.strip() != '':
+                # print('构造标题筛选条件')
                 query &= Q(title__contains=keyword) | Q(
                     summary__contains=keyword)
             if author.strip() != '':
+                # print('构造作者筛选条件')
                 query &= Q(author=author)
             if category.strip() != '':
+                # print('构造分类筛选条件')
                 with open('feeds/static/RSS_data.json', 'r', encoding='utf-8') as f:
                     feeds = json.load(f)
                 authors = [k for k, v in feeds.items() if v['category']
                            == category]
+                # print(authors)
                 query &= Q(author__in=authors)
 
-            articles = Article.objects.filter(query)
+            articles = Article.objects.filter(query).order_by('-pub_date')
+            # 升序的话去掉负号.order_by('pub_date')
 
         result = []
         html_tag_pattern = re.compile(r'<[^>]+>')  # 去除HTML标签的正则
@@ -157,7 +168,7 @@ def search(request):
                 'summary': summary,
                 'pub_date': article.pub_date,
             })
-        print(result)
+        # print(result)
         return JsonResponse(result, safe=False)
 
 
@@ -197,7 +208,7 @@ def get_content(data, retry_times=3):
             r = requests.get(data['href'], headers=headers)
             r.raise_for_status()
             return r.text
-        except RequestException as e:
+        except requests.RequestException as e:
             print(f"Error fetching URL {data['href']}: {e}")
             time.sleep(5)
     return False
@@ -219,20 +230,29 @@ def feeds(request):
 
         # 决定当个更新还是全部更新
         # 读取 （RSS源）
-        update_opt = request.POST.get('updateOpt', '')
-        print(f'updateOpt:{update_opt}')
+        authorValue = request.POST.get('authorValue', '')
+        categoryValue = request.POST.get('categoryValue', '')
+        print(f'updateOpt:{authorValue}')
 
         with open('feeds/static/RSS_data.json', 'r', encoding='utf-8') as f:
 
-            if update_opt == '':
-                # 全部更新
+            if (authorValue == '') and (categoryValue == ''):
                 print('全部更新')
                 rss_data = json.load(f)
-            else:
-                print(f'单独更新:{update_opt}')
+
+            elif (authorValue == '') and (categoryValue != ''):
+                print('根据类别批量更新')
                 rss_data = {}
                 for author, info in json.load(f).items():
-                    if update_opt == author:
+                    if info['category'] == categoryValue:
+                        rss_data[author] = info
+
+            else:
+                # 其他情况：作者不空+分类不空，作者不空+分类空，进行单独更新
+                print(f'单独更新:{authorValue}')
+                rss_data = {}
+                for author, info in json.load(f).items():
+                    if authorValue == author:
                         rss_data[author] = info
                 # print(rss_data)
 
@@ -263,14 +283,18 @@ def feeds(request):
                                                   link=entry_data.link)
 
                 except Article.DoesNotExist:
-
+                    # 检测是否只有路径，没有域名，是的话，重新组合link
+                    if key == 'guyskk':
+                        entry_link = "https://blog.guyskk.com" + entry_data.link
+                    else:
+                        entry_link = entry_data.link
                     try:
                         # 去除HTML标签
                         summary = html_tag_pattern.sub('', entry_data.summary)
 
                         article = Article.objects.create(
                             title=entry_data.title,
-                            link=entry_data.link,
+                            link=entry_link,
                             summary=summary,
                             author=key,
                             pub_date=time.strftime(
@@ -302,7 +326,7 @@ def feeds(request):
         # category_list = []
         category_list = set()
         # 读取rss_data.json中的类别信息，用于模态窗口的类别选择
-        with open(r'D:\systemLibrary\Desktop\RSS\rssreader\feeds\static\RSS_data.json', 'r', encoding='utf-8') as f:
+        with open('feeds/static/RSS_data.json', 'r', encoding='utf-8') as f:
             rss_data = json.load(f)
 
             for key, data in rss_data.items():

@@ -120,6 +120,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success" id="clear-btn">Clear</button>
         <button type="button" class="btn btn-primary" id="search-btn">Search</button>
       </div>
     </div>
@@ -164,6 +165,7 @@
   var isSearching = false; // 搜索状态
   var isEditing = false; // 编辑状态
   var authorValue = ""; // 作者值(用于检测是全部更新，还是单个更新)
+  var categoryValue = ""; //分类值（用于检测是否更新一个类别）
 
   // 等待文档完全加载后执行
   window.addEventListener('load', function () {

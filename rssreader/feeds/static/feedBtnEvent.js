@@ -16,6 +16,7 @@ $(document).ready(function () {
         var value = $(this).data('value');
         $('#category-input').val(value);
         $(this).closest('.input-group').find('.dropdown-toggle').text($(this).text());
+        categoryValue = value
 
         // 发送 AJAX 请求
         $.ajax({
@@ -113,7 +114,10 @@ $("#sync").click(function () {
     $.ajax({
         url: "/feeds/",
         type: "POST",
-        data: { updateOpt: authorValue },
+        data: {
+            authorValue: authorValue,
+            categoryValue: categoryValue
+        },
         success: function (data) {
             // 隐藏loading
             $(".loading").hide();
